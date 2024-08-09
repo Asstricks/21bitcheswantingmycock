@@ -1,3 +1,4 @@
+print("Loading...")
 -- Dex Bypasses
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Babyhamsta/RBLX_Scripts/main/Universal/Bypasses.lua", true))()
 
