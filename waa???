@@ -4,7 +4,7 @@ local TweenService = game:GetService("TweenService")
 function library:tween(...) TweenService:Create(...):Play() end
 
 local uis = game:GetService("UserInputService")
-library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal.lua"))()
+library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
 
