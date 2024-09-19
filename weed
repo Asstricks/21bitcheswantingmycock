@@ -2,13 +2,11 @@ local library = {}
 
 local TweenService = game:GetService("TweenService")
 
--- Updated tween function with proper argument handling
+-- Fixed tween function
 function library:tween(object, properties, duration)
-    -- Ensure the object and properties exist, and TweenService is being used correctly
     if object and properties then
         local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
         tween:Play()
-        return tween -- return tween in case you want to stop/cancel it later
     else
         warn("Invalid arguments for tweening!")
     end
@@ -17,7 +15,7 @@ end
 local uis = game:GetService("UserInputService")
 local rs = game:GetService("RunService")
 
--- Utility function to create objects
+-- Utility function to create objects with properties
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -56,7 +54,7 @@ end
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
-    menu.ui_size = UDim2.new(0, 700, 0, 500) -- Adjust the UI size for a better fit
+    menu.ui_size = UDim2.new(0, 700, 0, 500) -- Adjust the UI size
 
     -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
@@ -73,7 +71,6 @@ function library.new(library_title)
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
         Size = menu.ui_size,
-        Image = "http://www.roblox.com/asset/?id=7300333488",
         AutoButtonColor = false,
         Modal = true
     }, ScreenGui)
