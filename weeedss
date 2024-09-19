@@ -2,7 +2,7 @@ local library = {}
 
 local TweenService = game:GetService("TweenService")
 
--- Fixed tween function
+-- Tween function that checks parameters before creating tween
 function library:tween(object, properties, duration)
     if object and properties then
         local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
