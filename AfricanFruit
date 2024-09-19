@@ -240,14 +240,26 @@ function library.new(library_title, cfg_location)
 
     -- Minimize functionality
     local minimized = false
+    local initialSize = ImageLabel.Size
     MinimizeButton.MouseButton1Down:Connect(function()
         minimized = not minimized
-        for _, child in pairs(ImageLabel:GetChildren()) do
-            if child.Name ~= "Minimize" and child.Name ~= "Delete" then
-                child.Visible = not minimized
+        if minimized then
+            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)})  -- Only show title bar
+            for _, child in pairs(ImageLabel:GetChildren()) do
+                if child.Name ~= "Minimize" and child.Name ~= "Delete" and child.Name ~= "Title" then
+                    child.Visible = false
+                end
             end
+            MinimizeButton.Text = "+"
+        else
+            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = initialSize})
+            for _, child in pairs(ImageLabel:GetChildren()) do
+                if child.Name ~= "Minimize" and child.Name ~= "Delete" then
+                    child.Visible = true
+                end
+            end
+            MinimizeButton.Text = "-"
         end
-        MinimizeButton.Text = minimized and "+" or "-"
     end)
 
     -- Delete functionality
@@ -255,8 +267,64 @@ function library.new(library_title, cfg_location)
         ScreenGui:Destroy()
     end)
 
-    -- Tab management functions continue here...
-    -- Rest of the script remains the same
+    -- Tab creation functions
+    local is_first_tab = true
+    local selected_tab
+    local tab_num = 1
+
+    function menu.new_tab(tab_image)
+        local tab = {tab_num = tab_num}
+        menu.values[tab_num] = {}
+        tab_num = tab_num + 1
+
+        local TabButton = library:create("TextButton", {
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            BackgroundTransparency = 1,
+            Size = UDim2.new(0, 76, 0, 90),
+            Text = "",
+        }, TabButtons)
+
+        local TabImage = library:create("ImageLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0.5, 0, 0.5, 0),
+            Size = UDim2.new(0, 32, 0, 32),
+            Image = tab_image,
+            ImageColor3 = Color3.fromRGB(100, 100, 100),
+        }, TabButton)
+
+        local Tab = library:create("Frame", {
+            Name = "Tab",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 1, 0),
+            Visible = false,
+        }, Tabs)
+
+        if is_first_tab then
+            is_first_tab = false
+            selected_tab = TabButton
+            TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
+            Tab.Visible = true
+        end
+
+        TabButton.MouseButton1Down:Connect(function()
+            if selected_tab == TabButton then return end
+            for _,TButtons in pairs (TabButtons:GetChildren()) do
+                if not TButtons:IsA("TextButton") then continue end
+                library:tween(TButtons.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
+            end
+            for _,Tab in pairs (Tabs:GetChildren()) do
+                Tab.Visible = false
+            end
+            Tab.Visible = true
+            selected_tab = TabButton
+            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(84, 101, 255)})
+        end)
+
+        return tab
+    end
+
+    return menu
 end
 
 return library
