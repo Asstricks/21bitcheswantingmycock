@@ -148,14 +148,14 @@ function library.new(library_title, cfg_location)
         menu.open = ScreenGui.Enabled
     end)
 
-    -- Main Frame (Adjusted)
+    -- Main Frame (Adjusted size)
     local ImageLabel = library:create("ImageButton", {
         Name = "Main",
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 550, 0, 400), -- Slightly smaller for better positioning
+        Size = UDim2.new(0, 450, 0, 400), -- Slightly smaller for better positioning
         Image = "http://www.roblox.com/asset/?id=7300333488",
         AutoButtonColor = false,
         Modal = true,
@@ -201,7 +201,7 @@ function library.new(library_title, cfg_location)
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 102, 0, 42),
-        Size = UDim2.new(0, 436, 0, 346), -- Adjusted width and height
+        Size = UDim2.new(0, 336, 0, 346), -- Adjusted width and height
     }, ImageLabel)
 
     -- Minimize button
@@ -238,7 +238,7 @@ function library.new(library_title, cfg_location)
     MinimizeButton.MouseButton1Down:Connect(function()
         minimized = not minimized
         if minimized then
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)}) -- Only show title bar
+            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 450, 0, 30)}) -- Only show title bar
             for _, child in pairs(ImageLabel:GetChildren()) do
                 if child.Name ~= "Minimize" and child.Name ~= "Delete" and child.Name ~= "Title" then
                     child.Visible = false
@@ -274,7 +274,7 @@ function library.new(library_title, cfg_location)
         local TabButton = library:create("TextButton", {
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BackgroundTransparency = 1,
-            Size = UDim2.new(0, 70, 0, 70), -- Adjusted size for better layout
+            Size = UDim2.new(0, 60, 0, 60), -- Adjusted size for better layout
             Text = "",
         }, TabButtons)
 
@@ -282,7 +282,7 @@ function library.new(library_title, cfg_location)
             AnchorPoint = Vector2.new(0.5, 0.5),
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5, 0, 0.5, 0),
-            Size = UDim2.new(0, 40, 0, 40), -- Resized for better fit
+            Size = UDim2.new(0, 32, 0, 32), -- Resized for better fit
             Image = tab_image,
             ImageColor3 = Color3.fromRGB(100, 100, 100),
         }, TabButton)
@@ -318,6 +318,22 @@ function library.new(library_title, cfg_location)
             selected_tab = TabButton
             library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(84, 101, 255)})
         end)
+
+        -- Sections for the tab
+        local is_first_section = true
+        local num_sections = 0
+        local selected_section
+        function tab.new_section(section_name)
+            local section = {}
+
+            num_sections += 1
+
+            menu.values[tab.tab_num][section_name] = {}
+
+            -- Section logic here
+
+            return section
+        end
 
         return tab
     end
