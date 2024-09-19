@@ -4,8 +4,8 @@ local TweenService = game:GetService("TweenService")
 function library:tween(...) TweenService:Create(...):Play() end
 
 local uis = game:GetService("UserInputService")
-library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
 
+-- Utility to create UI elements
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -17,20 +17,8 @@ function library:create(Object, Properties, Parent)
     return Obj
 end
 
-local text_service = game:GetService("TextService")
-function library:get_text_size(...)
-    return text_service:GetTextSize(...)
-end
-
-local local_player = game:GetService("Players").LocalPlayer
-local mouse = local_player:GetMouse()
-
-local http = game:GetService("HttpService")
-local rs = game:GetService("RunService")
-
-function library:set_draggable(gui)
+local function set_draggable(gui)
     local dragging, dragInput, dragStart, startPos
-
     local function update(input)
         local delta = input.Position - dragStart
         gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -62,110 +50,32 @@ function library:set_draggable(gui)
     end)
 end
 
-function library.new(library_title, cfg_location)
+function library.new(library_title)
     local menu = {}
     menu.values = {}
-    menu.on_load_cfg = library.signal.new("on_load_cfg")
-
-    if not isfolder(cfg_location) then
-        makefolder(cfg_location)
-    end
-
-    function menu.copy(original)
-        local copy = {}
-        for k, v in pairs(original) do
-            if type(v) == "table" then
-                v = menu.copy(v)
-            end
-            copy[k] = v
-        end
-        return copy
-    end
-
-    function menu.save_cfg(cfg_name)
-        local values_copy = menu.copy(menu.values)
-        for _, tab in next, values_copy do
-            for _, section in next, tab do
-                for _, sector in next, section do
-                    for _, element in next, sector do
-                        if not element.Color then
-                            continue
-                        end
-                        element.Color = { R = element.Color.R, G = element.Color.G, B = element.Color.B }
-                    end
-                end
-            end
-        end
-        writefile(cfg_location .. cfg_name .. ".txt", http:JSONEncode(values_copy))
-    end
-
-    function menu.load_cfg(cfg_name)
-        local new_values = http:JSONDecode(readfile(cfg_location .. cfg_name .. ".txt"))
-        for _, tab in next, new_values do
-            for _2, section in next, tab do
-                for _3, sector in next, section do
-                    for _4, element in next, sector do
-                        if element.Color then
-                            element.Color = Color3.new(element.Color.R, element.Color.G, element.Color.B)
-                        end
-                        pcall(function()
-                            menu.values[_][_2][_3][_4] = element
-                        end)
-                    end
-                end
-            end
-        end
-        menu.on_load_cfg:Fire()
-    end
-
-    menu.open = true
+    
+    -- Screen GUI
     local ScreenGui = library:create("ScreenGui", {
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Global,
-        Name = "unknown",
+        Name = "LibraryUI",
         IgnoreGuiInset = true,
     })
 
-    if syn then
-        syn.protect_gui(ScreenGui)
-    end
-
     ScreenGui.Parent = game:GetService("CoreGui")
 
-    function menu.IsOpen()
-        return menu.open
-    end
-
-    function menu.SetOpen(State)
-        ScreenGui.Enabled = State
-    end
-
-    uis.InputBegan:Connect(function(key)
-        if key.KeyCode ~= Enum.KeyCode.Insert then
-            return
-        end
-        ScreenGui.Enabled = not ScreenGui.Enabled
-        menu.open = ScreenGui.Enabled
-    end)
-
-    -- Main Frame (Adjusted size)
-    local ImageLabel = library:create("ImageButton", {
+    -- Main Frame (UI Window)
+    local ImageLabel = library:create("Frame", {
         Name = "Main",
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 450, 0, 400), -- Slightly smaller for better positioning
-        Image = "http://www.roblox.com/asset/?id=7300333488",
-        AutoButtonColor = false,
-        Modal = true,
+        Size = UDim2.new(0, 550, 0, 400), -- Smaller for better fitting
+        ZIndex = 2,
     }, ScreenGui)
 
-    function menu.GetPosition()
-        return ImageLabel.Position
-    end
-
-    library:set_draggable(ImageLabel)
+    set_draggable(ImageLabel)
 
     local Title = library:create("TextLabel", {
         Name = "Title",
@@ -179,7 +89,6 @@ function library.new(library_title, cfg_location)
         TextColor3 = Color3.fromRGB(255, 255, 255),
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Left,
-        RichText = true,
     }, ImageLabel)
 
     local TabButtons = library:create("Frame", {
@@ -201,76 +110,13 @@ function library.new(library_title, cfg_location)
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 102, 0, 42),
-        Size = UDim2.new(0, 336, 0, 346), -- Adjusted width and height
+        Size = UDim2.new(0, 436, 0, 346), -- Adjusted width and height
     }, ImageLabel)
 
-    -- Minimize button
-    local MinimizeButton = library:create("TextButton", {
-        Name = "Minimize",
-        AnchorPoint = Vector2.new(1, 0),
-        BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-        BorderSizePixel = 0,
-        Position = UDim2.new(1, -30, 0, 5), -- Positioned in the top right corner
-        Size = UDim2.new(0, 20, 0, 20),
-        Text = "-",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.Ubuntu,
-        TextSize = 14,
-    }, ImageLabel)
-
-    -- Delete button
-    local DeleteButton = library:create("TextButton", {
-        Name = "Delete",
-        AnchorPoint = Vector2.new(1, 0),
-        BackgroundColor3 = Color3.fromRGB(15, 15, 15),
-        BorderSizePixel = 0,
-        Position = UDim2.new(1, -5, 0, 5), -- Positioned next to the Minimize button
-        Size = UDim2.new(0, 20, 0, 20),
-        Text = "X",
-        TextColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.Ubuntu,
-        TextSize = 14,
-    }, ImageLabel)
-
-    -- Minimize functionality
-    local minimized = false
-    local initialSize = ImageLabel.Size
-    MinimizeButton.MouseButton1Down:Connect(function()
-        minimized = not minimized
-        if minimized then
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 450, 0, 30)}) -- Only show title bar
-            for _, child in pairs(ImageLabel:GetChildren()) do
-                if child.Name ~= "Minimize" and child.Name ~= "Delete" and child.Name ~= "Title" then
-                    child.Visible = false
-                end
-            end
-            MinimizeButton.Text = "+"
-        else
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = initialSize})
-            for _, child in pairs(ImageLabel:GetChildren()) do
-                if child.Name ~= "Minimize" and child.Name ~= "Delete" then
-                    child.Visible = true
-                end
-            end
-            MinimizeButton.Text = "-"
-        end
-    end)
-
-    -- Delete functionality
-    DeleteButton.MouseButton1Down:Connect(function()
-        ScreenGui:Destroy()
-    end)
-
-    -- Tab creation functions
-    local is_first_tab = true
     local selected_tab
-    local tab_num = 1
 
     function menu.new_tab(tab_image)
-        local tab = {tab_num = tab_num}
-        menu.values[tab_num] = {}
-        tab_num = tab_num + 1
-
+        local tab = {}
         local TabButton = library:create("TextButton", {
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BackgroundTransparency = 1,
@@ -282,55 +128,135 @@ function library.new(library_title, cfg_location)
             AnchorPoint = Vector2.new(0.5, 0.5),
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5, 0, 0.5, 0),
-            Size = UDim2.new(0, 32, 0, 32), -- Resized for better fit
+            Size = UDim2.new(0, 32, 0, 32), -- Adjusted for better fit
             Image = tab_image,
             ImageColor3 = Color3.fromRGB(100, 100, 100),
         }, TabButton)
 
-        local Tab = library:create("Frame", {
+        local TabContent = library:create("Frame", {
             Name = "Tab",
             BackgroundTransparency = 1,
             Size = UDim2.new(1, 0, 1, 0),
             Visible = false,
         }, Tabs)
 
-        if is_first_tab then
-            is_first_tab = false
+        -- First tab selected by default
+        if not selected_tab then
             selected_tab = TabButton
             TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
-            Tab.Visible = true
+            TabContent.Visible = true
         end
 
+        -- TabButton Logic
         TabButton.MouseButton1Down:Connect(function()
             if selected_tab == TabButton then
                 return
             end
-            for _, TButtons in pairs(TabButtons:GetChildren()) do
-                if not TButtons:IsA("TextButton") then
-                    continue
+
+            -- Unselect all tabs
+            for _, TButton in pairs(TabButtons:GetChildren()) do
+                if TButton:IsA("TextButton") then
+                    library:tween(TButton.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        ImageColor3 = Color3.fromRGB(100, 100, 100)
+                    })
                 end
-                library:tween(TButtons.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
             end
+
+            -- Hide all tab contents
             for _, Tab in pairs(Tabs:GetChildren()) do
                 Tab.Visible = false
             end
-            Tab.Visible = true
+
+            -- Select clicked tab
+            TabContent.Visible = true
             selected_tab = TabButton
-            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(84, 101, 255)})
+            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                ImageColor3 = Color3.fromRGB(84, 101, 255)
+            })
         end)
 
-        -- Sections for the tab
-        local is_first_section = true
-        local num_sections = 0
-        local selected_section
         function tab.new_section(section_name)
             local section = {}
 
-            num_sections += 1
+            -- Section Frame (left or right)
+            local SectionFrame = library:create("Frame", {
+                Name = section_name,
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 100),
+            }, TabContent)
 
-            menu.values[tab.tab_num][section_name] = {}
+            local SectionTitle = library:create("TextLabel", {
+                Name = "SectionTitle",
+                BackgroundTransparency = 1,
+                Size = UDim2.new(1, 0, 0, 30),
+                Font = Enum.Font.Ubuntu,
+                Text = section_name,
+                TextColor3 = Color3.fromRGB(255, 255, 255),
+                TextSize = 14,
+                TextXAlignment = Enum.TextXAlignment.Left,
+            }, SectionFrame)
 
-            -- Section logic here
+            -- Elements go here (Toggle, Button, etc.)
+            function section.new_sector(sector_name)
+                local sector = {}
+                local SectorFrame = library:create("Frame", {
+                    Name = sector_name,
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 100),
+                }, SectionFrame)
+
+                local SectorTitle = library:create("TextLabel", {
+                    Name = "SectorTitle",
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(1, 0, 0, 30),
+                    Font = Enum.Font.Ubuntu,
+                    Text = sector_name,
+                    TextColor3 = Color3.fromRGB(255, 255, 255),
+                    TextSize = 14,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                }, SectorFrame)
+
+                function sector.element(type, name, data, callback)
+                    local element = {}
+                    if type == "Button" then
+                        local Button = library:create("TextButton", {
+                            Name = name,
+                            BackgroundTransparency = 1,
+                            Size = UDim2.new(1, 0, 0, 30),
+                            Font = Enum.Font.Ubuntu,
+                            Text = name,
+                            TextColor3 = Color3.fromRGB(255, 255, 255),
+                            TextSize = 14,
+                        }, SectorFrame)
+
+                        Button.MouseButton1Down:Connect(function()
+                            callback()
+                        end)
+                    elseif type == "Toggle" then
+                        local toggle_state = data and data.Toggle or false
+                        local Toggle = library:create("TextButton", {
+                            Name = name,
+                            BackgroundTransparency = 1,
+                            Size = UDim2.new(1, 0, 0, 30),
+                            Font = Enum.Font.Ubuntu,
+                            Text = name .. ": " .. (toggle_state and "ON" or "OFF"),
+                            TextColor3 = Color3.fromRGB(255, 255, 255),
+                            TextSize = 14,
+                        }, SectorFrame)
+
+                        Toggle.MouseButton1Down:Connect(function()
+                            toggle_state = not toggle_state
+                            Toggle.Text = name .. ": " .. (toggle_state and "ON" or "OFF")
+                            callback({Toggle = toggle_state})
+                        end)
+                    elseif type == "Slider" then
+                        -- Implement slider code here
+                    end
+                    return element
+                end
+
+                return sector
+            end
 
             return section
         end
