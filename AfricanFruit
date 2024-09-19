@@ -1,16 +1,10 @@
-print("Update 0")
+print("Update 1")
 local library = {}
 
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 
--- Utility function to tween properties
-function library:tween(object, tweenInfo, properties)
-    local tween = TweenService:Create(object, tweenInfo, properties)
-    tween:Play()
-end
-
--- Utility to create UI elements
+-- Utility function to create UI elements
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -22,10 +16,15 @@ function library:create(Object, Properties, Parent)
     return Obj
 end
 
+-- Utility to tween properties
+function library:tween(object, tweenInfo, properties)
+    local tween = TweenService:Create(object, tweenInfo, properties)
+    tween:Play()
+end
+
 -- Function to make a GUI draggable
 local function set_draggable(gui)
     local dragging, dragInput, dragStart, startPos
-
     local function update(input)
         local delta = input.Position - dragStart
         gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
@@ -57,6 +56,7 @@ local function set_draggable(gui)
     end)
 end
 
+-- Main UI creation function
 function library.new(library_title)
     local menu = {}
     menu.values = {}
@@ -70,8 +70,8 @@ function library.new(library_title)
     }, game:GetService("CoreGui"))
 
     -- Main Frame (UI Window)
-    local ImageLabel = library:create("Frame", {
-        Name = "Main",
+    local MainFrame = library:create("Frame", {
+        Name = "MainFrame",
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
@@ -80,13 +80,12 @@ function library.new(library_title)
         ZIndex = 2,
     }, ScreenGui)
 
-    set_draggable(ImageLabel)
+    set_draggable(MainFrame)
 
     -- UI Title
     local Title = library:create("TextLabel", {
         Name = "Title",
         AnchorPoint = Vector2.new(0.5, 0),
-        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0.5, 0, 0, 0),
         Size = UDim2.new(1, -22, 0, 30),
@@ -95,16 +94,16 @@ function library.new(library_title)
         TextColor3 = Color3.fromRGB(255, 255, 255),
         TextSize = 16,
         TextXAlignment = Enum.TextXAlignment.Center,
-    }, ImageLabel)
+    }, MainFrame)
 
     -- Tab Buttons Frame
     local TabButtons = library:create("Frame", {
         Name = "TabButtons",
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 12, 0, 41),
-        Size = UDim2.new(0, 76, 0, 347),
-    }, ImageLabel)
+        Position = UDim2.new(0, 10, 0, 40),
+        Size = UDim2.new(0, 80, 1, -50),
+    }, MainFrame)
 
     local UIListLayout = library:create("UIListLayout", {
         HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -117,11 +116,11 @@ function library.new(library_title)
         Name = "Tabs",
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
-        Position = UDim2.new(0, 102, 0, 42),
-        Size = UDim2.new(0, 436, 0, 346),
-    }, ImageLabel)
+        Position = UDim2.new(0, 100, 0, 40),
+        Size = UDim2.new(1, -110, 1, -50),
+    }, MainFrame)
 
-    -- Minimize button
+    -- Minimize and Delete button
     local MinimizeButton = library:create("TextButton", {
         Name = "Minimize",
         AnchorPoint = Vector2.new(1, 0),
@@ -133,9 +132,8 @@ function library.new(library_title)
         TextColor3 = Color3.fromRGB(255, 255, 255),
         Font = Enum.Font.Ubuntu,
         TextSize = 14,
-    }, ImageLabel)
+    }, MainFrame)
 
-    -- Delete button
     local DeleteButton = library:create("TextButton", {
         Name = "Delete",
         AnchorPoint = Vector2.new(1, 0),
@@ -147,24 +145,24 @@ function library.new(library_title)
         TextColor3 = Color3.fromRGB(255, 255, 255),
         Font = Enum.Font.Ubuntu,
         TextSize = 14,
-    }, ImageLabel)
+    }, MainFrame)
 
     -- Minimize functionality
     local minimized = false
-    local initialSize = ImageLabel.Size
+    local initialSize = MainFrame.Size
     MinimizeButton.MouseButton1Down:Connect(function()
         minimized = not minimized
         if minimized then
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)}) -- Only show title bar
-            for _, child in pairs(ImageLabel:GetChildren()) do
+            library:tween(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)})
+            for _, child in pairs(MainFrame:GetChildren()) do
                 if child.Name ~= "Minimize" and child.Name ~= "Delete" and child.Name ~= "Title" then
                     child.Visible = false
                 end
             end
             MinimizeButton.Text = "+"
         else
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = initialSize})
-            for _, child in pairs(ImageLabel:GetChildren()) do
+            library:tween(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = initialSize})
+            for _, child in pairs(MainFrame:GetChildren()) do
                 if child.Name ~= "Minimize" and child.Name ~= "Delete" then
                     child.Visible = true
                 end
