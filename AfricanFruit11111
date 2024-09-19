@@ -48,7 +48,7 @@ end
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
-    menu.ui_size = UDim2.new(0, 750, 0, 550) -- Increased UI size
+    menu.ui_size = UDim2.new(0, 700, 0, 500) -- Adjust the UI size for a better fit
 
     -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
@@ -89,7 +89,7 @@ function library.new(library_title)
     local CloseButton = library:create("TextButton", {
         Name = "CloseButton",
         BackgroundTransparency = 1,
-        Position = UDim2.new(1, -30, 0, 0),
+        Position = UDim2.new(1, -30, 0, 0), -- Adjusted to be in the top right corner
         Size = UDim2.new(0, 30, 0, 30),
         Text = "X",
         Font = Enum.Font.Ubuntu,
@@ -105,7 +105,7 @@ function library.new(library_title)
     local MinimizeButton = library:create("TextButton", {
         Name = "MinimizeButton",
         BackgroundTransparency = 1,
-        Position = UDim2.new(1, -60, 0, 0),
+        Position = UDim2.new(1, -60, 0, 0), -- Placed to the left of the close button
         Size = UDim2.new(0, 30, 0, 30),
         Text = "_",
         Font = Enum.Font.Ubuntu,
@@ -118,7 +118,7 @@ function library.new(library_title)
         if menu.is_minimized then
             library:tween(MainFrame, { Size = menu.ui_size }, 0.4)
         else
-            library:tween(MainFrame, { Size = UDim2.new(0, 750, 0, 35) }, 0.4)
+            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 35) }, 0.4) -- Only show the title bar
         end
         menu.is_minimized = not menu.is_minimized
     end)
