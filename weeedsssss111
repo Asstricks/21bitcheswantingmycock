@@ -1,6 +1,8 @@
 local library = {}
 
 local TweenService = game:GetService("TweenService")
+local uis = game:GetService("UserInputService")
+local rs = game:GetService("RunService")
 
 -- Tween function that checks parameters before creating tween
 function library:tween(object, properties, duration)
@@ -11,9 +13,6 @@ function library:tween(object, properties, duration)
         warn("Invalid arguments for tweening!")
     end
 end
-
-local uis = game:GetService("UserInputService")
-local rs = game:GetService("RunService")
 
 -- Utility function to create objects with properties
 function library:create(Object, Properties, Parent)
@@ -54,7 +53,7 @@ end
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
-    menu.ui_size = UDim2.new(0, 700, 0, 500) -- Adjust the UI size
+    menu.ui_size = UDim2.new(0, 650, 0, 450) -- Adjust the UI size
 
     -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
@@ -102,6 +101,7 @@ function library.new(library_title)
         TextSize = 18
     }, MainFrame)
 
+    -- Close functionality to destroy the UI
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy() -- Destroy the entire UI when closed
     end)
@@ -123,7 +123,7 @@ function library.new(library_title)
         if menu.is_minimized then
             library:tween(MainFrame, { Size = menu.ui_size }, 0.4)
         else
-            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 35) }, 0.4) -- Only show the title bar
+            library:tween(MainFrame, { Size = UDim2.new(0, 650, 0, 35) }, 0.4) -- Only show the title bar
         end
         menu.is_minimized = not menu.is_minimized
     end)
@@ -148,7 +148,9 @@ function library.new(library_title)
         Padding = UDim.new(0, 5)
     }, TabButtons)
 
-    -- More UI logic can be added here (buttons, toggles, etc.)
+    -- Integrate the rest of your original features here (Buttons, Sliders, Dropdowns, etc.)
+    -- You can re-use your original sections here, like the Tab buttons, sliders, toggles, dropdowns, etc.
+    -- Make sure each section is inside the "Tabs" frame for the main UI structure.
 
     return menu
 end
