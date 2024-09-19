@@ -1,9 +1,17 @@
 local library = {}
 
 local TweenService = game:GetService("TweenService")
+
+-- Updated tween function with proper argument handling
 function library:tween(object, properties, duration)
-    local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
-    tween:Play()
+    -- Ensure the object and properties exist, and TweenService is being used correctly
+    if object and properties then
+        local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
+        tween:Play()
+        return tween -- return tween in case you want to stop/cancel it later
+    else
+        warn("Invalid arguments for tweening!")
+    end
 end
 
 local uis = game:GetService("UserInputService")
