@@ -8,7 +8,7 @@ library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asst
 
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
-    for i,v in pairs(Properties) do
+    for i, v in pairs(Properties) do
         Obj[i] = v
     end
     if Parent ~= nil then
@@ -22,10 +22,6 @@ function library:get_text_size(...)
     return text_service:GetTextSize(...)
 end
 
-function library:console(func)
-    func(("\n"):rep(57))
-end
-
 local local_player = game:GetService("Players").LocalPlayer
 local mouse = local_player:GetMouse()
 
@@ -33,11 +29,7 @@ local http = game:GetService("HttpService")
 local rs = game:GetService("RunService")
 
 function library:set_draggable(gui)
-    local UserInputService = game:GetService("UserInputService")
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
+    local dragging, dragInput, dragStart, startPos
 
     local function update(input)
         local delta = input.Position - dragStart
@@ -45,7 +37,7 @@ function library:set_draggable(gui)
     end
 
     gui.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = gui.Position
@@ -58,12 +50,12 @@ function library:set_draggable(gui)
     end)
 
     gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
             dragInput = input
         end
     end)
 
-    UserInputService.InputChanged:Connect(function(input)
+    uis.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             update(input)
         end
@@ -78,7 +70,7 @@ function library.new(library_title, cfg_location)
     if not isfolder(cfg_location) then
         makefolder(cfg_location)
     end
-    
+
     function menu.copy(original)
         local copy = {}
         for k, v in pairs(original) do
@@ -92,25 +84,27 @@ function library.new(library_title, cfg_location)
 
     function menu.save_cfg(cfg_name)
         local values_copy = menu.copy(menu.values)
-        for _,tab in next, values_copy do
-            for _,section in next, tab do
-                for _,sector in next, section do
-                    for _,element in next, sector do
-                        if not element.Color then continue end
-                        element.Color = {R = element.Color.R, G = element.Color.G, B = element.Color.B}
+        for _, tab in next, values_copy do
+            for _, section in next, tab do
+                for _, sector in next, section do
+                    for _, element in next, sector do
+                        if not element.Color then
+                            continue
+                        end
+                        element.Color = { R = element.Color.R, G = element.Color.G, B = element.Color.B }
                     end
                 end
             end
         end
-        writefile(cfg_location..cfg_name..".txt", http:JSONEncode(values_copy))
+        writefile(cfg_location .. cfg_name .. ".txt", http:JSONEncode(values_copy))
     end
 
     function menu.load_cfg(cfg_name)
-        local new_values = http:JSONDecode(readfile(cfg_location..cfg_name..".txt"))
-        for _,tab in next, new_values do
-            for _2,section in next, tab do
-                for _3,sector in next, section do
-                    for _4,element in next, sector do
+        local new_values = http:JSONDecode(readfile(cfg_location .. cfg_name .. ".txt"))
+        for _, tab in next, new_values do
+            for _2, section in next, tab do
+                for _3, sector in next, section do
+                    for _4, element in next, sector do
                         if element.Color then
                             element.Color = Color3.new(element.Color.R, element.Color.G, element.Color.B)
                         end
@@ -132,11 +126,11 @@ function library.new(library_title, cfg_location)
         IgnoreGuiInset = true,
     })
 
-	if syn then
-		syn.protect_gui(ScreenGui)
-	end
+    if syn then
+        syn.protect_gui(ScreenGui)
+    end
 
-	ScreenGui.Parent = game:GetService("CoreGui")
+    ScreenGui.Parent = game:GetService("CoreGui")
 
     function menu.IsOpen()
         return menu.open
@@ -147,23 +141,21 @@ function library.new(library_title, cfg_location)
     end
 
     uis.InputBegan:Connect(function(key)
-        if key.KeyCode ~= Enum.KeyCode.Insert then return end
-		ScreenGui.Enabled = not ScreenGui.Enabled
-        menu.open = ScreenGui.Enabled
-        while ScreenGui.Enabled do
-            uis.MouseIconEnabled = true
-            rs.RenderStepped:Wait()
+        if key.KeyCode ~= Enum.KeyCode.Insert then
+            return
         end
-	end)
+        ScreenGui.Enabled = not ScreenGui.Enabled
+        menu.open = ScreenGui.Enabled
+    end)
 
-    -- Main Frame (Shrunk)
+    -- Main Frame (Adjusted)
     local ImageLabel = library:create("ImageButton", {
         Name = "Main",
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 550, 0, 400),  -- Reduced size
+        Size = UDim2.new(0, 550, 0, 400), -- Slightly smaller for better positioning
         Image = "http://www.roblox.com/asset/?id=7300333488",
         AutoButtonColor = false,
         Modal = true,
@@ -195,11 +187,13 @@ function library.new(library_title, cfg_location)
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 12, 0, 41),
-        Size = UDim2.new(0, 76, 0, 347),  -- Adjusted height
+        Size = UDim2.new(0, 76, 0, 347), -- Adjusted height
     }, ImageLabel)
 
     local UIListLayout = library:create("UIListLayout", {
-        HorizontalAlignment = Enum.HorizontalAlignment.Center
+        HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 5), -- Add some padding for cleaner alignment
     }, TabButtons)
 
     local Tabs = library:create("Frame", {
@@ -207,7 +201,7 @@ function library.new(library_title, cfg_location)
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0, 102, 0, 42),
-        Size = UDim2.new(0, 436, 0, 346),  -- Adjusted width and height
+        Size = UDim2.new(0, 436, 0, 346), -- Adjusted width and height
     }, ImageLabel)
 
     -- Minimize button
@@ -216,7 +210,7 @@ function library.new(library_title, cfg_location)
         AnchorPoint = Vector2.new(1, 0),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderSizePixel = 0,
-        Position = UDim2.new(1, -30, 0, 5),  -- Positioned in the top right corner
+        Position = UDim2.new(1, -30, 0, 5), -- Positioned in the top right corner
         Size = UDim2.new(0, 20, 0, 20),
         Text = "-",
         TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -230,7 +224,7 @@ function library.new(library_title, cfg_location)
         AnchorPoint = Vector2.new(1, 0),
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderSizePixel = 0,
-        Position = UDim2.new(1, -5, 0, 5),  -- Positioned next to the Minimize button
+        Position = UDim2.new(1, -5, 0, 5), -- Positioned next to the Minimize button
         Size = UDim2.new(0, 20, 0, 20),
         Text = "X",
         TextColor3 = Color3.fromRGB(255, 255, 255),
@@ -244,7 +238,7 @@ function library.new(library_title, cfg_location)
     MinimizeButton.MouseButton1Down:Connect(function()
         minimized = not minimized
         if minimized then
-            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)})  -- Only show title bar
+            library:tween(ImageLabel, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 30)}) -- Only show title bar
             for _, child in pairs(ImageLabel:GetChildren()) do
                 if child.Name ~= "Minimize" and child.Name ~= "Delete" and child.Name ~= "Title" then
                     child.Visible = false
@@ -280,7 +274,7 @@ function library.new(library_title, cfg_location)
         local TabButton = library:create("TextButton", {
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BackgroundTransparency = 1,
-            Size = UDim2.new(0, 50, 0, 50), -- Resized to fit smaller UI
+            Size = UDim2.new(0, 70, 0, 70), -- Adjusted size for better layout
             Text = "",
         }, TabButtons)
 
@@ -288,7 +282,7 @@ function library.new(library_title, cfg_location)
             AnchorPoint = Vector2.new(0.5, 0.5),
             BackgroundTransparency = 1,
             Position = UDim2.new(0.5, 0, 0.5, 0),
-            Size = UDim2.new(0, 32, 0, 32),
+            Size = UDim2.new(0, 40, 0, 40), -- Resized for better fit
             Image = tab_image,
             ImageColor3 = Color3.fromRGB(100, 100, 100),
         }, TabButton)
@@ -308,12 +302,16 @@ function library.new(library_title, cfg_location)
         end
 
         TabButton.MouseButton1Down:Connect(function()
-            if selected_tab == TabButton then return end
-            for _,TButtons in pairs (TabButtons:GetChildren()) do
-                if not TButtons:IsA("TextButton") then continue end
+            if selected_tab == TabButton then
+                return
+            end
+            for _, TButtons in pairs(TabButtons:GetChildren()) do
+                if not TButtons:IsA("TextButton") then
+                    continue
+                end
                 library:tween(TButtons.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
             end
-            for _,Tab in pairs (Tabs:GetChildren()) do
+            for _, Tab in pairs(Tabs:GetChildren()) do
                 Tab.Visible = false
             end
             Tab.Visible = true
