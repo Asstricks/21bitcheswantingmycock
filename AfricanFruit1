@@ -1,4 +1,3 @@
-print("Update 1")
 local library = {}
 
 local TweenService = game:GetService("TweenService")
@@ -220,9 +219,7 @@ function library.new(library_title)
             -- Unselect all tabs
             for _, TButton in pairs(TabButtons:GetChildren()) do
                 if TButton:IsA("TextButton") then
-                    library:tween(TButton.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        ImageColor3 = Color3.fromRGB(100, 100, 100)
-                    })
+                    TButton.ImageLabel.ImageColor3 = Color3.fromRGB(100, 100, 100)
                 end
             end
 
@@ -234,9 +231,7 @@ function library.new(library_title)
             -- Select clicked tab
             TabContent.Visible = true
             selected_tab = TabButton
-            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                ImageColor3 = Color3.fromRGB(84, 101, 255)
-            })
+            TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
         end)
 
         -- Sections for tab
