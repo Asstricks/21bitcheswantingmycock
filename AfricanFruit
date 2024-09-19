@@ -1,3 +1,4 @@
+print("Update 0")
 local library = {}
 
 local TweenService = game:GetService("TweenService")
