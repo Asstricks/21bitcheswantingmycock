@@ -1,10 +1,14 @@
+-- Include your signal implementation
+local Signal = require(path_to_signal_script)
+
+-- Core Library for UI
 local library = {}
 
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 local rs = game:GetService("RunService")
 
--- Tween function that checks parameters before creating tween
+-- Tween function to animate UI transitions
 function library:tween(object, properties, duration)
     if object and properties then
         local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
@@ -14,7 +18,7 @@ function library:tween(object, properties, duration)
     end
 end
 
--- Utility function to create objects with properties
+-- Utility function to create UI elements
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -26,7 +30,7 @@ function library:create(Object, Properties, Parent)
     return Obj
 end
 
--- Set draggable functionality
+-- Set draggable functionality to UI elements
 function library:set_draggable(gui)
     local dragging, dragStart, startPos
     gui.InputBegan:Connect(function(input)
