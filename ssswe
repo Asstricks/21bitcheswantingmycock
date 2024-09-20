@@ -1,0 +1,252 @@
+local library = {}
+
+local TweenService = game:GetService("TweenService")
+local uis = game:GetService("UserInputService")
+
+-- Signal class definition (integrated into the script)
+do
+    local HttpService = game:GetService("HttpService")
+
+    local ENABLE_TRACEBACK = false
+
+    local Signal = {}
+    Signal.__index = Signal
+    Signal.ClassName = "Signal"
+
+    function Signal.new()
+        local self = setmetatable({}, Signal)
+
+        self._bindableEvent = Instance.new("BindableEvent")
+        self._argMap = {}
+        self._source = ENABLE_TRACEBACK and debug.traceback() or ""
+
+        self._bindableEvent.Event:Connect(function(key)
+            self._argMap[key] = nil
+            if (not self._bindableEvent) and (not next(self._argMap)) then
+                self._argMap = nil
+            end
+        end)
+
+        return self
+    end
+
+    function Signal:Fire(...)
+        if not self._bindableEvent then
+            warn(("Signal is already destroyed. %s"):format(self._source))
+            return
+        end
+
+        local args = table.pack(...)
+
+        local key = HttpService:GenerateGUID(false)
+        self._argMap[key] = args
+
+        self._bindableEvent:Fire(key)
+    end
+
+    function Signal:Connect(handler)
+        if not (type(handler) == "function") then
+            error(("connect(%s)"):format(typeof(handler)), 2)
+        end
+
+        return self._bindableEvent.Event:Connect(function(key)
+            local args = self._argMap[key]
+            if args then
+                handler(table.unpack(args, 1, args.n))
+            else
+                error("Missing arg data, probably due to reentrance.")
+            end
+        end)
+    end
+
+    function Signal:Wait()
+        local key = self._bindableEvent.Event:Wait()
+        local args = self._argMap[key]
+        if args then
+            return table.unpack(args, 1, args.n)
+        else
+            error("Missing arg data, probably due to reentrance.")
+            return nil
+        end
+    end
+
+    function Signal:Destroy()
+        if self._bindableEvent then
+            self._bindableEvent:Destroy()
+            self._bindableEvent = nil
+        end
+        setmetatable(self, nil)
+    end
+
+    library.Signal = Signal
+end
+
+function library:tween(object, properties, duration)
+    if object and properties then
+        local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
+        tween:Play()
+    else
+        warn("Tweening failed: invalid object or properties.")
+    end
+end
+
+function library:create(Object, Properties, Parent)
+    local Obj = Instance.new(Object)
+    for i, v in pairs(Properties) do
+        Obj[i] = v
+    end
+    if Parent then
+        Obj.Parent = Parent
+    end
+    return Obj
+end
+
+function library:set_draggable(gui)
+    local dragging, dragInput, dragStart, startPos
+    local function update(input)
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+    gui.InputBegan:Connect(function(input)
+        if
+            input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch
+        then
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    gui.InputChanged:Connect(function(input)
+        if
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
+        then
+            dragInput = input
+        end
+    end)
+    uis.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+function library.new(library_title)
+    local menu = {}
+    menu.is_minimized = false
+
+    -- Signal creation and config loading
+    menu.on_load_cfg = library.Signal.new()
+
+    -- ScreenGui
+    local ScreenGui = library:create("ScreenGui", {
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Global,
+        Name = "CustomUI"
+    }, game:GetService("CoreGui"))
+
+    -- Main Frame (UI Background)
+    local MainFrame = library:create("Frame", {
+        Name = "Main",
+        BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+        BorderColor3 = Color3.fromRGB(78, 93, 234),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, 700, 0, 500), -- Adjust size as needed
+        AnchorPoint = Vector2.new(0.5, 0.5)
+    }, ScreenGui)
+
+    -- Draggable Main Frame
+    library:set_draggable(MainFrame)
+
+    -- UI Title
+    local Title = library:create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 0),
+        Size = UDim2.new(1, -20, 0, 30),
+        Font = Enum.Font.Ubuntu,
+        Text = library_title,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left
+    }, MainFrame)
+
+    -- Close Button
+    local CloseButton = library:create("TextButton", {
+        Name = "CloseButton",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -30, 0, 0), -- Positioned at the top right corner
+        Size = UDim2.new(0, 30, 0, 30),
+        Text = "X",
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 18
+    }, MainFrame)
+
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
+
+    -- Minimize Button
+    local MinimizeButton = library:create("TextButton", {
+        Name = "MinimizeButton",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -60, 0, 0), -- Positioned next to the close button
+        Size = UDim2.new(0, 30, 0, 30),
+        Text = "_",
+        Font = Enum.Font.Ubuntu,
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 18
+    }, MainFrame)
+
+    MinimizeButton.MouseButton1Click:Connect(function()
+        if menu.is_minimized then
+            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 500) }, 0.4)
+        else
+            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 30) }, 0.4)
+        end
+        menu.is_minimized = not menu.is_minimized
+    end)
+
+    -- Tab Buttons and Content Holder (Preserving original UI structure)
+    local TabButtons = library:create("Frame", {
+        Name = "TabButtons",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 35),
+        Size = UDim2.new(0, 100, 1, -35)
+    }, MainFrame)
+
+    local UIListLayout = library:create("UIListLayout", {
+        SortOrder = Enum.SortOrder.LayoutOrder,
+        Padding = UDim.new(0, 5)
+    }, TabButtons)
+
+    local Tabs = library:create("Frame", {
+        Name = "Tabs",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 120, 0, 35),
+        Size = UDim2.new(1, -130, 1, -35)
+    }, MainFrame)
+
+    -- You can now add your original features (tabs, sections, buttons, sliders, etc.) inside the Tabs frame
+
+    -- Example of using the signal
+    menu.on_load_cfg:Connect(function()
+        print("Configuration Loaded!")
+    end)
+
+    return menu
+end
+
+return library
