@@ -1923,85 +1923,62 @@ function library.new(library_title, cfg_location)
                         }, SliderFrame)
 
 -- here
-function minimizeUI(menu, tweenService)
-    -- Access the ScreenGui directly
-    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown")
+function addMinimizeButton()
+    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown") -- Find your ScreenGui
+    local mainFrame = screenGui and screenGui:FindFirstChild("Main") -- Access the main frame
     
-    -- Ensure the ScreenGui and the main frame (ImageLabel) exist
-    if not screenGui then
-        warn("ScreenGui not found!")
-        return
-    end
+    if mainFrame then
+        -- Minimize button creation
+        local minimizeButton = Instance.new("TextButton")
+        minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+        minimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Top-right of the main UI
+        minimizeButton.Text = "_"
+        minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+        minimizeButton.Parent = mainFrame -- Parent to the main UI frame
 
-    local mainFrame = screenGui:FindFirstChild("Main")
-    
-    if not mainFrame then
+        -- Minimize logic
+        local minimized = false
+        local originalSize = mainFrame.Size
+        local minimizedSize = UDim2.new(mainFrame.Size.X.Scale, mainFrame.Size.X.Offset, 0, 30) -- Only show title bar
+        
+        minimizeButton.MouseButton1Click:Connect(function()
+            minimized = not minimized
+            if minimized then
+                -- Tween to minimize
+                game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(0.5), {Size = minimizedSize}):Play()
+            else
+                -- Tween to original size
+                game:GetService("TweenService"):Create(mainFrame, TweenInfo.new(0.5), {Size = originalSize}):Play()
+            end
+        end)
+    else
         warn("Main UI frame not found!")
-        return
     end
-    
-    -- Minimized state check
-    local minimized = false
-    local originalSize = mainFrame.Size
-    local minimizedSize = UDim2.new(mainFrame.Size.X.Scale, mainFrame.Size.X.Offset, 0, 30) -- Show the title bar only
-    
-    -- Minimize/Restore function
-    local function toggleMinimize()
-        minimized = not minimized
-        if minimized then
-            -- Tween to minimize
-            tweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = minimizedSize}):Play()
-        else
-            -- Tween to restore original size
-            tweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize}):Play()
-        end
-    end
-    
-    -- Add Minimize Button
-    local minimizeButton = Instance.new("TextButton")
-    minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-    minimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Top-right corner of the main frame
-    minimizeButton.Text = "_"
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-    minimizeButton.Parent = mainFrame
-    
-    minimizeButton.MouseButton1Click:Connect(toggleMinimize)
 end
-function closeUI(menu)
-    -- Access the ScreenGui directly
-    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown")
+function addCloseButton()
+    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown") -- Find your ScreenGui
+    local mainFrame = screenGui and screenGui:FindFirstChild("Main") -- Access the main frame
     
-    -- Ensure the ScreenGui and the main frame (ImageLabel) exist
-    if not screenGui then
-        warn("ScreenGui not found!")
-        return
-    end
+    if mainFrame then
+        -- Close button creation
+        local closeButton = Instance.new("TextButton")
+        closeButton.Size = UDim2.new(0, 30, 0, 30)
+        closeButton.Position = UDim2.new(1, -35, 0, 5) -- Top-right of the main UI
+        closeButton.Text = "X"
+        closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        closeButton.Parent = mainFrame -- Parent to the main UI frame
 
-    local mainFrame = screenGui:FindFirstChild("Main")
-    
-    if not mainFrame then
+        -- Close logic
+        closeButton.MouseButton1Click:Connect(function()
+            mainFrame.Visible = false -- Hide the UI on close
+        end)
+    else
         warn("Main UI frame not found!")
-        return
     end
-
-    -- Add Close Button
-    local closeButton = Instance.new("TextButton")
-    closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0, 5) -- Top-right corner of the main frame
-    closeButton.Text = "X"
-    closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    closeButton.Parent = mainFrame
-    
-    closeButton.MouseButton1Click:Connect(function()
-        mainFrame.Visible = false
-    end)
 end
-local tweenService = game:GetService("TweenService")
-
--- Initialize Minimize and Close Buttons
-minimizeUI(menu, tweenService)
-closeUI(menu)
-
+-- Call to add Minimize and Close buttons
+addMinimizeButton()
+addCloseButton()
 
 
 
