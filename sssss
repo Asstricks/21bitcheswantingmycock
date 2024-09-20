@@ -1,88 +1,92 @@
-local library = {}  -- Define library first
+--[[
+    Complete UI Library with integrated Signal class.
+    Features:
+    - Draggable UI
+    - Minimize and Close buttons
+    - Signal handling for events
+--]]
 
-local TweenService = game:GetService("TweenService")
-local uis = game:GetService("UserInputService")
+-- Define the Signal class
+local Signal = {}
+Signal.__index = Signal
 
--- Signal class definition (integrated into the script)
-do
-    local HttpService = game:GetService("HttpService")
+function Signal.new()
+    local self = setmetatable({}, Signal)
 
-    local ENABLE_TRACEBACK = false
+    self._bindableEvent = Instance.new("BindableEvent")
+    self._argMap = {}
+    self._source = "" -- Enable traceback if needed
 
-    local Signal = {}
-    Signal.__index = Signal
-    Signal.ClassName = "Signal"
+    self._bindableEvent.Event:Connect(function(key)
+        self._argMap[key] = nil
 
-    function Signal.new()
-        local self = setmetatable({}, Signal)
-
-        self._bindableEvent = Instance.new("BindableEvent")
-        self._argMap = {}
-        self._source = ENABLE_TRACEBACK and debug.traceback() or ""
-
-        self._bindableEvent.Event:Connect(function(key)
-            self._argMap[key] = nil
-            if (not self._bindableEvent) and (not next(self._argMap)) then
-                self._argMap = nil
-            end
-        end)
-
-        return self
-    end
-
-    function Signal:Fire(...)
-        if not self._bindableEvent then
-            warn(("Signal is already destroyed. %s"):format(self._source))
-            return
+        -- Clean up if the signal is destroyed
+        if (not self._bindableEvent) and (not next(self._argMap)) then
+            self._argMap = nil
         end
+    end)
 
-        local args = table.pack(...)
-
-        local key = HttpService:GenerateGUID(false)
-        self._argMap[key] = args
-
-        self._bindableEvent:Fire(key)
-    end
-
-    function Signal:Connect(handler)
-        if type(handler) ~= "function" then
-            error(("connect(%s)"):format(typeof(handler)), 2)
-        end
-
-        return self._bindableEvent.Event:Connect(function(key)
-            local args = self._argMap[key]
-            if args then
-                handler(table.unpack(args, 1, args.n))
-            else
-                error("Missing arg data, probably due to reentrance.")
-            end
-        end)
-    end
-
-    function Signal:Wait()
-        local key = self._bindableEvent.Event:Wait()
-        local args = self._argMap[key]
-        if args then
-            return table.unpack(args, 1, args.n)
-        else
-            error("Missing arg data, probably due to reentrance.")
-            return nil
-        end
-    end
-
-    function Signal:Destroy()
-        if self._bindableEvent then
-            self._bindableEvent:Destroy()
-            self._bindableEvent = nil
-        end
-        setmetatable(self, nil)
-    end
-
-    -- Assign the Signal class to library.Signal
-    library.Signal = Signal
+    return self
 end
 
--- Tween function to handle animations
+function Signal:Fire(...)
+    if not self._bindableEvent then
+        warn("Signal is already destroyed.")
+        return
+    end
+
+    local args = table.pack(...)
+    local HttpService = game:GetService("HttpService")
+    local key = HttpService:GenerateGUID(false)
+    self._argMap[key] = args
+
+    self._bindableEvent:Fire(key)
+end
+
+function Signal:Connect(handler)
+    if type(handler) ~= "function" then
+        error("connect expects a function")
+    end
+
+    return self._bindableEvent.Event:Connect(function(key)
+        local args = self._argMap[key]
+        if args then
+            handler(table.unpack(args, 1, args.n))
+        else
+            error("Missing arg data, probably due to reentrance.")
+        end
+    end)
+end
+
+function Signal:Wait()
+    local key = self._bindableEvent.Event:Wait()
+    local args = self._argMap[key]
+    if args then
+        return table.unpack(args, 1, args.n)
+    else
+        error("Missing arg data, probably due to reentrance.")
+        return nil
+    end
+end
+
+function Signal:Destroy()
+    if self._bindableEvent then
+        self._bindableEvent:Destroy()
+        self._bindableEvent = nil
+    end
+    setmetatable(self, nil)
+end
+
+-- Define the library
+local library = {}
+library.Signal = Signal
+
+-- Services
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Tweening helper function
 function library:tween(object, properties, duration)
     if object and properties then
         local tween = TweenService:Create(
@@ -96,7 +100,7 @@ function library:tween(object, properties, duration)
     end
 end
 
--- Helper function to create UI elements
+-- UI creation helper function
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -110,17 +114,8 @@ end
 
 -- Draggable UI function
 function library:set_draggable(gui)
-    local dragging, dragInput, dragStart, startPos
-
-    local function update(input)
-        local delta = input.Position - dragStart
-        gui.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
+    local dragging = false
+    local dragInput, dragStart, startPos
 
     gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -136,25 +131,25 @@ function library:set_draggable(gui)
         end
     end)
 
-    gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    uis.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(
+                startPos.X.Scale, 
+                startPos.X.Offset + delta.X, 
+                startPos.Y.Scale, 
+                startPos.Y.Offset + delta.Y
+            )
         end
     end)
 end
 
--- Main function for creating the UI
+-- Main function to create the UI
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
 
-    -- Signal creation
+    -- Create a signal object for UI events
     menu.on_load_cfg = library.Signal.new()
 
     -- ScreenGui
@@ -162,7 +157,7 @@ function library.new(library_title)
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Global,
         Name = "CustomUI"
-    }, game:GetService("CoreGui"))
+    }, CoreGui)
 
     -- Main Frame (UI Background)
     local MainFrame = library:create("Frame", {
@@ -170,11 +165,11 @@ function library.new(library_title)
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 700, 0, 500), -- Adjust size as needed
+        Size = UDim2.new(0, 700, 0, 500), -- Original size
         AnchorPoint = Vector2.new(0.5, 0.5)
     }, ScreenGui)
 
-    -- Draggable Main Frame
+    -- Make draggable
     library:set_draggable(MainFrame)
 
     -- UI Title
@@ -254,7 +249,11 @@ function library.new(library_title)
         print("Configuration Loaded!")
     end)
 
+    -- Fire the signal to simulate configuration loading
+    menu.on_load_cfg:Fire()
+
     return menu
 end
 
-return library
+-- Instantiate the UI
+local ui = library.new("My Custom UI")
