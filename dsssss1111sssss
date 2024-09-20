@@ -1,16 +1,15 @@
--- Import the Signal class into your UI script
-local Signal = require(path_to_signal_script) -- Adjust this path
-
 local library = {}
+
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 
--- Helper function for tweening
+-- Use the original signal loading method
+library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
+
 function library:tween(object, properties, duration)
     TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties):Play()
 end
 
--- UI Elements Creation
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i,v in pairs(Properties) do
@@ -20,7 +19,6 @@ function library:create(Object, Properties, Parent)
     return Obj
 end
 
--- Draggable UI
 function library:set_draggable(gui)
     local dragging, dragInput, dragStart, startPos
     local function update(input)
@@ -51,13 +49,12 @@ function library:set_draggable(gui)
     end)
 end
 
--- Main UI Initialization
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
 
-    -- Create a signal object for the UI events
-    menu.on_load_cfg = Signal.new()
+    -- Create a signal object for UI events
+    menu.on_load_cfg = library.signal.new("on_load_cfg")
 
     -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
@@ -72,7 +69,7 @@ function library.new(library_title)
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
         BorderColor3 = Color3.fromRGB(78, 93, 234),
         Position = UDim2.new(0.5, 0, 0.5, 0),
-        Size = UDim2.new(0, 650, 0, 450),
+        Size = UDim2.new(0, 600, 0, 400), -- Adjust size as needed
         AnchorPoint = Vector2.new(0.5, 0.5)
     }, ScreenGui)
 
@@ -123,9 +120,9 @@ function library.new(library_title)
     -- Minimize functionality
     MinimizeButton.MouseButton1Click:Connect(function()
         if menu.is_minimized then
-            library:tween(MainFrame, { Size = UDim2.new(0, 650, 0, 450) }, 0.4) -- Restore size
+            library:tween(MainFrame, { Size = UDim2.new(0, 600, 0, 400) }, 0.4) -- Restore size
         else
-            library:tween(MainFrame, { Size = UDim2.new(0, 650, 0, 30) }, 0.4) -- Only show the title bar
+            library:tween(MainFrame, { Size = UDim2.new(0, 600, 0, 30) }, 0.4) -- Only show the title bar
         end
         menu.is_minimized = not menu.is_minimized
     end)
