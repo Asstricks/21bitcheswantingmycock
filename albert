@@ -1898,45 +1898,6 @@ function library.new(library_title, cfg_location)
                             TextSize = 14,
                             TextXAlignment = Enum.TextXAlignment.Left,
                         }, Slider)
-                       -- Create the Minimize Button
-local MinimizeButton = library:create("TextButton")
-MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-MinimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Top-right corner
-MinimizeButton.Text = "_"
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-MinimizeButton.Parent = MainFrame
-
--- Create the Close Button
-local CloseButton = library:create("TextButton")
-CloseButton.Size = UDim2.new(0, 30, 0, 30)
-CloseButton.Position = UDim2.new(1, -35, 0, 5) -- Next to the Minimize Button
-CloseButton.Text = "X"
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-CloseButton.Parent = MainFrame
-
-
-local isMinimized = false
-local originalSize = MainFrame.Size
-
-local function MinimizeUI()
-    if not isMinimized then
-        -- Minimize the UI
-        MainFrame.Size = UDim2.new(MainFrame.Size.X.Scale, MainFrame.Size.X.Offset, 0, 40) -- Only show title bar
-        isMinimized = true
-    else
-        -- Restore the UI
-        MainFrame.Size = originalSize
-        isMinimized = false
-    end
-end
-
-MinimizeButton.MouseButton1Click:Connect(MinimizeUI)
-local function CloseUI()
-    MainFrame.Visible = false
-end
-
-CloseButton.MouseButton1Click:Connect(CloseUI)
-
 
                         local SliderButton = library:create("TextButton", {
                             Name = "SliderButton",
@@ -1960,6 +1921,80 @@ CloseButton.MouseButton1Click:Connect(CloseUI)
                             Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(79, 95, 239)), ColorSequenceKeypoint.new(1, Color3.fromRGB(56, 67, 163))},
                             Rotation = 90,
                         }, SliderFrame)
+
+function minimizeUI(menu, tweenService)
+    local mainFrame = menu.ImageLabel -- This is your main UI frame
+    
+    -- Minimized state check
+    local minimized = false
+    local originalSize = mainFrame.Size
+    local minimizedSize = UDim2.new(mainFrame.Size.X.Scale, mainFrame.Size.X.Offset, 0, 30) -- Show the title bar only
+    
+    -- Minimize/Restore function
+    local function toggleMinimize()
+        minimized = not minimized
+        if minimized then
+            -- Tween to minimize
+            tweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = minimizedSize}):Play()
+        else
+            -- Tween to restore original size
+            tweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = originalSize}):Play()
+        end
+    end
+    
+    -- Add Minimize Button
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Size = UDim2.new(0, 30, 0, 30)
+    minimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Adjust position to top-right corner
+    minimizeButton.Text = "_"
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+    minimizeButton.Parent = mainFrame
+    
+    minimizeButton.MouseButton1Click:Connect(toggleMinimize)
+end
+function closeUI(menu)
+    local mainFrame = menu.ImageLabel -- This is your main UI frame
+    
+    -- Add Close Button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Size = UDim2.new(0, 30, 0, 30)
+    closeButton.Position = UDim2.new(1, -35, 0, 5) -- Adjust position to top-right corner
+    closeButton.Text = "X"
+    closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    closeButton.Parent = mainFrame
+    
+    closeButton.MouseButton1Click:Connect(function()
+        mainFrame.Visible = false
+    end)
+end
+
+local tweenService = game:GetService("TweenService")
+
+-- Assuming 'menu' is your main UI object created by `library.new`
+minimizeUI(menu, tweenService)
+closeUI(menu)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                         local SliderValue = library:create("TextLabel", {
                             Name = "SliderValue",
