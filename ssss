@@ -3,6 +3,21 @@ local library = {}
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 
+-- Adding a debug message to ensure TweenService is working
+if not TweenService then
+    warn("TweenService is not available")
+end
+
+-- Tweening helper function with added debug messages for tracking issues
+function library:tween(object, properties, duration)
+    if object and properties then
+        local tween = TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties)
+        tween:Play()
+    else
+        warn("Tweening failed: invalid object or properties.")
+    end
+end
+
 -- Attempt to load the signal using loadstring and check if it works
 local success, signalLib = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
@@ -13,11 +28,6 @@ if not success or not signalLib then
     return
 else
     library.signal = signalLib
-end
-
--- Tweening helper function
-function library:tween(object, properties, duration)
-    TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties):Play()
 end
 
 -- UI creation helper function
@@ -133,8 +143,10 @@ function library.new(library_title)
     -- Minimize functionality
     MinimizeButton.MouseButton1Click:Connect(function()
         if menu.is_minimized then
+            -- Restore original size
             library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 500) }, 0.4)
         else
+            -- Minimize size to only show title bar
             library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 30) }, 0.4)
         end
         menu.is_minimized = not menu.is_minimized
