@@ -1955,6 +1955,7 @@ function addMinimizeButton()
         warn("Main UI frame not found!")
     end
 end
+
 function addCloseButton()
     local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown") -- Find your ScreenGui
     local mainFrame = screenGui and screenGui:FindFirstChild("Main") -- Access the main frame
@@ -1976,12 +1977,9 @@ function addCloseButton()
         warn("Main UI frame not found!")
     end
 end
--- Call to add Minimize and Close buttons
+-- After creating ImageLabel and setting up the UI
 addMinimizeButton()
 addCloseButton()
-
-
-
 
 
 
