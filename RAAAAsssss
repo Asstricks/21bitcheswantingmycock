@@ -3,22 +3,25 @@ local library = {}
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 
--- Use the original signal loading method
+-- Reverting back to the loadstring method you provided for the signal
 library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
 
+-- Tweening helper function
 function library:tween(object, properties, duration)
     TweenService:Create(object, TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), properties):Play()
 end
 
+-- UI creation helper function
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
-    for i,v in pairs(Properties) do
+    for i, v in pairs(Properties) do
         Obj[i] = v
     end
     Obj.Parent = Parent
     return Obj
 end
 
+-- Make UI draggable
 function library:set_draggable(gui)
     local dragging, dragInput, dragStart, startPos
     local function update(input)
@@ -49,12 +52,13 @@ function library:set_draggable(gui)
     end)
 end
 
+-- Main function to create the UI
 function library.new(library_title)
     local menu = {}
     menu.is_minimized = false
 
-    -- Create a signal object for UI events
-    menu.on_load_cfg = library.signal.new("on_load_cfg")
+    -- Signal creation and config loading
+    menu.on_load_cfg = library.signal.new()
 
     -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
@@ -73,10 +77,10 @@ function library.new(library_title)
         AnchorPoint = Vector2.new(0.5, 0.5)
     }, ScreenGui)
 
-    -- Draggable Main Frame
+    -- Make draggable
     library:set_draggable(MainFrame)
 
-    -- UI Title
+    -- Title
     local Title = library:create("TextLabel", {
         Name = "Title",
         BackgroundTransparency = 1,
@@ -92,7 +96,7 @@ function library.new(library_title)
     local CloseButton = library:create("TextButton", {
         Name = "CloseButton",
         BackgroundTransparency = 1,
-        Position = UDim2.new(1, -30, 0, 0), -- Adjusted to be in the top right corner
+        Position = UDim2.new(1, -30, 0, 0),
         Size = UDim2.new(0, 30, 0, 30),
         Text = "X",
         Font = Enum.Font.Ubuntu,
@@ -100,16 +104,16 @@ function library.new(library_title)
         TextSize = 18
     }, MainFrame)
 
-    -- Close functionality to destroy the UI
+    -- Close functionality
     CloseButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy() -- Destroy the entire UI when closed
+        ScreenGui:Destroy()
     end)
 
     -- Minimize Button
     local MinimizeButton = library:create("TextButton", {
         Name = "MinimizeButton",
         BackgroundTransparency = 1,
-        Position = UDim2.new(1, -60, 0, 0), -- Placed to the left of the close button
+        Position = UDim2.new(1, -60, 0, 0),
         Size = UDim2.new(0, 30, 0, 30),
         Text = "_",
         Font = Enum.Font.Ubuntu,
@@ -120,14 +124,14 @@ function library.new(library_title)
     -- Minimize functionality
     MinimizeButton.MouseButton1Click:Connect(function()
         if menu.is_minimized then
-            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 500) }, 0.4) -- Restore size
+            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 500) }, 0.4)
         else
-            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 30) }, 0.4) -- Only show the title bar
+            library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 30) }, 0.4)
         end
         menu.is_minimized = not menu.is_minimized
     end)
 
-    -- Example Signal Usage: Call this signal when configuration is loaded
+    -- Signal handler example (print message when configuration is loaded)
     menu.on_load_cfg:Connect(function()
         print("Configuration Loaded!")
     end)
