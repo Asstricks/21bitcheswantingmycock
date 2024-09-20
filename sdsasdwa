@@ -1,20 +1,33 @@
+--[[
+    Complete UI Library with integrated Signal class.
+    Features:
+    - Draggable UI
+    - Minimize and Close buttons
+    - Signal handling for events
+--]]
+
+-- Step 1: Define the library table first
 local library = {}
 print("Library table initialized.")
 
+-- Step 2: Define the Signal class
 local Signal = {}
 Signal.__index = Signal
 
 function Signal.new()
     local self = setmetatable({}, Signal)
+
     self._bindableEvent = Instance.new("BindableEvent")
     self._argMap = {}
-    self._source = ""
+    self._source = "" -- Set to debug.traceback() if you want stack traces
+
     self._bindableEvent.Event:Connect(function(key)
         self._argMap[key] = nil
         if not self._bindableEvent and not next(self._argMap) then
             self._argMap = nil
         end
     end)
+
     return self
 end
 
@@ -23,10 +36,12 @@ function Signal:Fire(...)
         warn("Signal is already destroyed.")
         return
     end
+
     local args = table.pack(...)
     local HttpService = game:GetService("HttpService")
     local key = HttpService:GenerateGUID(false)
     self._argMap[key] = args
+
     self._bindableEvent:Fire(key)
 end
 
@@ -34,6 +49,7 @@ function Signal:Connect(handler)
     if type(handler) ~= "function" then
         error("connect expects a function")
     end
+
     return self._bindableEvent.Event:Connect(function(key)
         local args = self._argMap[key]
         if args then
@@ -63,14 +79,24 @@ function Signal:Destroy()
     setmetatable(self, nil)
 end
 
+-- Step 3: Assign the Signal class to library.Signal
 library.Signal = Signal
 print("Signal class assigned to library.")
 
+-- Step 4: Get Roblox services
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+if not player then
+    error("LocalPlayer not found. This script should be a LocalScript.")
+end
+local PlayerGui = player:WaitForChild("PlayerGui")
 print("Roblox services obtained.")
 
+-- Step 5: Define helper functions
+
+-- Tweening helper function
 function library:tween(object, properties, duration)
     if object and properties then
         local tween = TweenService:Create(
@@ -85,6 +111,7 @@ function library:tween(object, properties, duration)
 end
 print("Tween function defined.")
 
+-- UI creation helper function
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
     for i, v in pairs(Properties) do
@@ -97,6 +124,7 @@ function library:create(Object, Properties, Parent)
 end
 print("Create function defined.")
 
+-- Draggable UI function
 function library:set_draggable(gui)
     local dragging = false
     local dragInput, dragStart, startPos
@@ -129,21 +157,25 @@ function library:set_draggable(gui)
 end
 print("Set draggable function defined.")
 
+-- Step 6: Define the main function to create the UI
 function library.new(library_title)
     print("Creating UI...")
     local menu = {}
     menu.is_minimized = false
 
+    -- Create a signal object for UI events
     menu.on_load_cfg = library.Signal.new()
     print("Signal object created.")
 
+    -- ScreenGui
     local ScreenGui = library:create("ScreenGui", {
         ResetOnSpawn = false,
         ZIndexBehavior = Enum.ZIndexBehavior.Global,
         Name = "CustomUI"
-    }, CoreGui)
+    }, PlayerGui)
     print("ScreenGui created.")
 
+    -- Main Frame (UI Background)
     local MainFrame = library:create("Frame", {
         Name = "Main",
         BackgroundColor3 = Color3.fromRGB(15, 15, 15),
@@ -154,9 +186,11 @@ function library.new(library_title)
     }, ScreenGui)
     print("MainFrame created.")
 
+    -- Make draggable
     library:set_draggable(MainFrame)
     print("MainFrame set to draggable.")
 
+    -- UI Title
     local Title = library:create("TextLabel", {
         Name = "Title",
         BackgroundTransparency = 1,
@@ -170,6 +204,7 @@ function library.new(library_title)
     }, MainFrame)
     print("Title created.")
 
+    -- Close Button
     local CloseButton = library:create("TextButton", {
         Name = "CloseButton",
         BackgroundTransparency = 1,
@@ -182,11 +217,13 @@ function library.new(library_title)
     }, MainFrame)
     print("CloseButton created.")
 
+    -- Functionality to close the UI
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
         print("UI closed.")
     end)
 
+    -- Minimize Button
     local MinimizeButton = library:create("TextButton", {
         Name = "MinimizeButton",
         BackgroundTransparency = 1,
@@ -199,6 +236,7 @@ function library.new(library_title)
     }, MainFrame)
     print("MinimizeButton created.")
 
+    -- Toggle the UI between minimized and full state
     MinimizeButton.MouseButton1Click:Connect(function()
         if menu.is_minimized then
             library:tween(MainFrame, { Size = UDim2.new(0, 700, 0, 500) }, 0.4)
@@ -211,6 +249,7 @@ function library.new(library_title)
     end)
     print("Minimize functionality connected.")
 
+    -- Tab Buttons and Content Holder
     local TabButtons = library:create("Frame", {
         Name = "TabButtons",
         BackgroundTransparency = 1,
@@ -233,11 +272,13 @@ function library.new(library_title)
     }, MainFrame)
     print("Tabs created.")
 
+    -- Example of using the signal
     menu.on_load_cfg:Connect(function()
         print("Configuration Loaded!")
     end)
     print("Signal connected to 'on_load_cfg'.")
 
+    -- Fire the signal to simulate configuration loading
     menu.on_load_cfg:Fire()
     print("Signal fired: Configuration Loaded!")
 
@@ -246,6 +287,6 @@ function library.new(library_title)
     return menu
 end
 
--- Instantiate the UI
+-- Step 7: Instantiate the UI
 local ui = library.new("My Custom UI")
 print("UI instantiated.")
