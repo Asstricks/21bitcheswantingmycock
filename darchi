@@ -148,9 +148,8 @@ function library.new(library_title)
         Padding = UDim.new(0, 5)
     }, TabButtons)
 
-    -- Integrate the rest of your original features here (Buttons, Sliders, Dropdowns, etc.)
-    -- You can re-use your original sections here, like the Tab buttons, sliders, toggles, dropdowns, etc.
-    -- Make sure each section is inside the "Tabs" frame for the main UI structure.
+    -- Placeholder for actual tabs, buttons, sliders, etc.
+    -- Add your other original features here inside `Tabs`.
 
     return menu
 end
