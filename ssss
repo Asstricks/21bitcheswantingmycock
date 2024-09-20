@@ -3,8 +3,17 @@ local library = {}
 local TweenService = game:GetService("TweenService")
 local uis = game:GetService("UserInputService")
 
--- Reverting back to the loadstring method you provided for the signal
-library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
+-- Attempt to load the signal using loadstring and check if it works
+local success, signalLib = pcall(function()
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
+end)
+
+if not success or not signalLib then
+    warn("Failed to load signal library.")
+    return
+else
+    library.signal = signalLib
+end
 
 -- Tweening helper function
 function library:tween(object, properties, duration)
