@@ -1960,14 +1960,13 @@ function minimizeUI(menu, tweenService)
     -- Add Minimize Button
     local minimizeButton = Instance.new("TextButton")
     minimizeButton.Size = UDim2.new(0, 30, 0, 30)
-    minimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Adjust position to top-right corner
+    minimizeButton.Position = UDim2.new(1, -70, 0, 5) -- Top-right corner of the main frame
     minimizeButton.Text = "_"
     minimizeButton.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
     minimizeButton.Parent = mainFrame
     
     minimizeButton.MouseButton1Click:Connect(toggleMinimize)
 end
-
 function closeUI(menu)
     -- Access the ScreenGui directly
     local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown")
@@ -1988,7 +1987,7 @@ function closeUI(menu)
     -- Add Close Button
     local closeButton = Instance.new("TextButton")
     closeButton.Size = UDim2.new(0, 30, 0, 30)
-    closeButton.Position = UDim2.new(1, -35, 0, 5) -- Adjust position to top-right corner
+    closeButton.Position = UDim2.new(1, -35, 0, 5) -- Top-right corner of the main frame
     closeButton.Text = "X"
     closeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
     closeButton.Parent = mainFrame
@@ -1999,7 +1998,7 @@ function closeUI(menu)
 end
 local tweenService = game:GetService("TweenService")
 
--- Call the functions after creating the UI
+-- Initialize Minimize and Close Buttons
 minimizeUI(menu, tweenService)
 closeUI(menu)
 
