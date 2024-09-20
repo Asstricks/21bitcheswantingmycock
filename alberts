@@ -1922,8 +1922,15 @@ function library.new(library_title, cfg_location)
                             Rotation = 90,
                         }, SliderFrame)
 
+-- here
 function minimizeUI(menu, tweenService)
-    local mainFrame = menu.ImageLabel -- This is your main UI frame
+    -- Ensure the ImageLabel frame exists before accessing its properties
+    local mainFrame = menu:FindFirstChild("Main") or menu.ImageLabel -- Safely reference "Main"
+    
+    if not mainFrame then
+        warn("Main UI frame not found!")
+        return
+    end
     
     -- Minimized state check
     local minimized = false
@@ -1953,8 +1960,14 @@ function minimizeUI(menu, tweenService)
     minimizeButton.MouseButton1Click:Connect(toggleMinimize)
 end
 function closeUI(menu)
-    local mainFrame = menu.ImageLabel -- This is your main UI frame
+    -- Ensure the ImageLabel frame exists before accessing its properties
+    local mainFrame = menu:FindFirstChild("Main") or menu.ImageLabel -- Safely reference "Main"
     
+    if not mainFrame then
+        warn("Main UI frame not found!")
+        return
+    end
+
     -- Add Close Button
     local closeButton = Instance.new("TextButton")
     closeButton.Size = UDim2.new(0, 30, 0, 30)
@@ -1967,13 +1980,11 @@ function closeUI(menu)
         mainFrame.Visible = false
     end)
 end
-
 local tweenService = game:GetService("TweenService")
 
--- Assuming 'menu' is your main UI object created by `library.new`
+-- Call functions after creating the UI
 minimizeUI(menu, tweenService)
 closeUI(menu)
-
 
 
 
