@@ -1924,8 +1924,16 @@ function library.new(library_title, cfg_location)
 
 -- here
 function minimizeUI(menu, tweenService)
-    -- Ensure the ImageLabel frame exists before accessing its properties
-    local mainFrame = menu:FindFirstChild("Main") or menu.ImageLabel -- Safely reference "Main"
+    -- Access the ScreenGui directly
+    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown")
+    
+    -- Ensure the ScreenGui and the main frame (ImageLabel) exist
+    if not screenGui then
+        warn("ScreenGui not found!")
+        return
+    end
+
+    local mainFrame = screenGui:FindFirstChild("Main")
     
     if not mainFrame then
         warn("Main UI frame not found!")
@@ -1959,9 +1967,18 @@ function minimizeUI(menu, tweenService)
     
     minimizeButton.MouseButton1Click:Connect(toggleMinimize)
 end
+
 function closeUI(menu)
-    -- Ensure the ImageLabel frame exists before accessing its properties
-    local mainFrame = menu:FindFirstChild("Main") or menu.ImageLabel -- Safely reference "Main"
+    -- Access the ScreenGui directly
+    local screenGui = game:GetService("CoreGui"):FindFirstChild("unknown")
+    
+    -- Ensure the ScreenGui and the main frame (ImageLabel) exist
+    if not screenGui then
+        warn("ScreenGui not found!")
+        return
+    end
+
+    local mainFrame = screenGui:FindFirstChild("Main")
     
     if not mainFrame then
         warn("Main UI frame not found!")
@@ -1982,12 +1999,9 @@ function closeUI(menu)
 end
 local tweenService = game:GetService("TweenService")
 
--- Call functions after creating the UI
+-- Call the functions after creating the UI
 minimizeUI(menu, tweenService)
 closeUI(menu)
-
-
-
 
 
 
