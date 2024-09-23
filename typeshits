@@ -2016,49 +2016,231 @@ function library.new(library_title, cfg_location)
                             element:set_value(menu.values[tab.tab_num][section_name][sector_name][flag])
                         end
                     end)
--- Close and Minimize Button Script
+local library = {}
+
 local TweenService = game:GetService("TweenService")
+function library:tween(...) TweenService:Create(...):Play() end
+
 local uis = game:GetService("UserInputService")
+library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
+function library:create(Object, Properties, Parent)
+    local Obj = Instance.new(Object)
 
-function create_button(name, text, position, parent, callback)
-    local button = Instance.new("TextButton")
-    button.Name = name
-    button.Text = text
-    button.Size = UDim2.new(0, 50, 0, 20)
-    button.Position = position
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Parent = parent
+    for i,v in pairs (Properties) do
+        Obj[i] = v
+    end
+    if Parent ~= nil then
+        Obj.Parent = Parent
+    end
 
-    button.MouseButton1Click:Connect(callback)
-
-    return button
+    return Obj
 end
 
--- Function for minimizing the menu (tween upwards)
-function minimize_ui(menu)
-    local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local target_position = UDim2.new(0.5, 0, 0, 0) -- Moves the UI to the top of the screen
-    local tween = TweenService:Create(menu, tween_info, {Position = target_position})
-    tween:Play()
+local text_service = game:GetService("TextService")
+function library:get_text_size(...)
+    return text_service:GetTextSize(...)
 end
 
--- Function for closing (deleting) the UI
-function close_ui(menu)
-    menu:Destroy()
+function library:console(func)
+    func(("\n"):rep(57))
 end
 
--- Assuming ImageLabel is the main UI element you want to control
-local ImageLabel = script.Parent -- Reference to your main UI
+local local_player = game:GetService("Players").LocalPlayer
+local mouse = local_player:GetMouse()
 
--- Creating the minimize and close buttons
-local minimize_button = create_button("MinimizeButton", "_", UDim2.new(1, -110, 0, 5), ImageLabel, function()
-    minimize_ui(ImageLabel)
-end)
+local http = game:GetService("HttpService")
+local rs = game:GetService("RunService")
 
-local close_button = create_button("CloseButton", "X", UDim2.new(1, -60, 0, 5), ImageLabel, function()
-    close_ui(ImageLabel)
-end)
+function library:set_draggable(gui)
+    local UserInputService = game:GetService("UserInputService")
+
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+            
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    gui.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
+    end)
+end
+
+function library.new(library_title, cfg_location)
+    local menu = {}
+    menu.values = {}
+    menu.on_load_cfg = library.signal.new("on_load_cfg")
+
+    if not isfolder(cfg_location) then
+        makefolder(cfg_location)
+    end
+    
+    function menu.copy(original)
+        local copy = {}
+        for k, v in pairs(original) do
+            if type(v) == "table" then
+                v = menu.copy(v)
+            end
+            copy[k] = v
+        end
+        return copy
+    end
+    function menu.save_cfg(cfg_name)
+        local values_copy = menu.copy(menu.values)
+        for _,tab in next, values_copy do
+            for _,section in next, tab do
+                for _,sector in next, section do
+                    for _,element in next, sector do
+                        if not element.Color then continue end
+
+                        element.Color = {R = element.Color.R, G = element.Color.G, B = element.Color.B}
+                    end
+                end
+            end
+        end
+
+        writefile(cfg_location..cfg_name..".txt", http:JSONEncode(values_copy))
+    end
+    function menu.load_cfg(cfg_name)
+        local new_values = http:JSONDecode(readfile(cfg_location..cfg_name..".txt"))
+
+        for _,tab in next, new_values do
+            for _2,section in next, tab do
+                for _3,sector in next, section do
+                    for _4,element in next, sector do
+                        if element.Color then
+                            element.Color = Color3.new(element.Color.R, element.Color.G, element.Color.B)
+                        end
+
+                        pcall(function()
+                            menu.values[_][_2][_3][_4] = element
+                        end)
+                    end
+                end
+            end
+        end
+
+        menu.on_load_cfg:Fire()
+    end
+
+    menu.open = true
+    local ScreenGui = library:create("ScreenGui", {
+        ResetOnSpawn = false,
+        ZIndexBehavior = Enum.ZIndexBehavior.Global,
+        Name = "unknown",
+        IgnoreGuiInset = true,
+    })
+
+    if syn then
+        syn.protect_gui(ScreenGui)
+    end
+
+    ScreenGui.Parent = game:GetService("CoreGui")
+
+    function menu.IsOpen()
+        return menu.open
+    end
+    function menu.SetOpen(State)
+        ScreenGui.Enabled = state
+    end
+
+    uis.InputBegan:Connect(function(key)
+        if key.KeyCode ~= Enum.KeyCode.Insert then return end
+
+        ScreenGui.Enabled = not ScreenGui.Enabled
+        menu.open = ScreenGui.Enabled
+
+        while ScreenGui.Enabled do
+            uis.MouseIconEnabled = true
+            rs.RenderStepped:Wait()
+        end
+    end)
+
+    local ImageLabel = library:create("ImageButton", {
+        Name = "Main",
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+        BorderColor3 = Color3.fromRGB(78, 93, 234),
+        Position = UDim2.new(0.5, 0, 0.5, 0),
+        Size = UDim2.new(0, 700, 0, 500),
+        Image = "http://www.roblox.com/asset/?id=7300333488",
+        AutoButtonColor = false,
+        Modal = true,
+    }, ScreenGui)
+
+    -- Minimize and Close buttons integration starts here
+    -- Helper function to create a button
+    function create_button(name, text, position, parent, callback)
+        local button = Instance.new("TextButton")
+        button.Name = name
+        button.Text = text
+        button.Size = UDim2.new(0, 50, 0, 20)
+        button.Position = position
+        button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+        button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        button.Parent = parent
+
+        button.MouseButton1Click:Connect(callback)
+
+        return button
+    end
+
+    -- Minimize function
+    function minimize_ui(menu)
+        local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        local target_position = UDim2.new(0.5, 0, 0, 0) -- Move to the top of the screen
+        local tween = TweenService:Create(menu, tween_info, {Position = target_position})
+        tween:Play()
+    end
+
+    -- Close function (destroy UI)
+    function close_ui(menu)
+        menu:Destroy()
+    end
+
+    -- Create minimize and close buttons in the top-right corner of ImageLabel
+    local minimize_button = create_button("MinimizeButton", "_", UDim2.new(1, -110, 0, 5), ImageLabel, function()
+        minimize_ui(ImageLabel)
+    end)
+
+    local close_button = create_button("CloseButton", "X", UDim2.new(1, -60, 0, 5), ImageLabel, function()
+        close_ui(ImageLabel)
+    end)
+    -- Minimize and Close buttons integration ends here
+
+    library:set_draggable(ImageLabel)
+
+    -- Your original tabs, sections, and UI elements code continues here...
+
+    return menu
+end
+
+return library
 
 
                     return element
