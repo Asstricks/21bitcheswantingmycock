@@ -4,11 +4,12 @@ local TweenService = game:GetService("TweenService")
 function library:tween(...) TweenService:Create(...):Play() end
 
 local uis = game:GetService("UserInputService")
+library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
 
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
 
-    for i, v in pairs(Properties) do
+    for i,v in pairs (Properties) do
         Obj[i] = v
     end
     if Parent ~= nil then
@@ -33,7 +34,6 @@ local mouse = local_player:GetMouse()
 local http = game:GetService("HttpService")
 local rs = game:GetService("RunService")
 
--- Function to set UI draggable
 function library:set_draggable(gui)
     local UserInputService = game:GetService("UserInputService")
 
@@ -77,12 +77,12 @@ end
 function library.new(library_title, cfg_location)
     local menu = {}
     menu.values = {}
-    menu.on_load_cfg = Instance.new("BindableEvent")
+    menu.on_load_cfg = library.signal.new("on_load_cfg")
 
     if not isfolder(cfg_location) then
         makefolder(cfg_location)
     end
-
+    
     function menu.copy(original)
         local copy = {}
         for k, v in pairs(original) do
@@ -93,30 +93,29 @@ function library.new(library_title, cfg_location)
         end
         return copy
     end
-
     function menu.save_cfg(cfg_name)
         local values_copy = menu.copy(menu.values)
-        for _, tab in next, values_copy do
-            for _, section in next, tab do
-                for _, sector in next, section do
-                    for _, element in next, sector do
+        for _,tab in next, values_copy do
+            for _,section in next, tab do
+                for _,sector in next, section do
+                    for _,element in next, sector do
                         if not element.Color then continue end
-                        element.Color = { R = element.Color.R, G = element.Color.G, B = element.Color.B }
+
+                        element.Color = {R = element.Color.R, G = element.Color.G, B = element.Color.B}
                     end
                 end
             end
         end
 
-        writefile(cfg_location .. cfg_name .. ".txt", http:JSONEncode(values_copy))
+        writefile(cfg_location..cfg_name..".txt", http:JSONEncode(values_copy))
     end
-
     function menu.load_cfg(cfg_name)
-        local new_values = http:JSONDecode(readfile(cfg_location .. cfg_name .. ".txt"))
+        local new_values = http:JSONDecode(readfile(cfg_location..cfg_name..".txt"))
 
-        for _, tab in next, new_values do
-            for _2, section in next, tab do
-                for _3, sector in next, section do
-                    for _4, element in next, sector do
+        for _,tab in next, new_values do
+            for _2,section in next, tab do
+                for _3,sector in next, section do
+                    for _4,element in next, sector do
                         if element.Color then
                             element.Color = Color3.new(element.Color.R, element.Color.G, element.Color.B)
                         end
@@ -140,31 +139,30 @@ function library.new(library_title, cfg_location)
         IgnoreGuiInset = true,
     })
 
-    if syn then
-        syn.protect_gui(ScreenGui)
-    end
+	if syn then
+		syn.protect_gui(ScreenGui)
+	end
 
     ScreenGui.Parent = game:GetService("CoreGui")
 
     function menu.IsOpen()
         return menu.open
     end
-
     function menu.SetOpen(State)
-        ScreenGui.Enabled = State
+        ScreenGui.Enabled = state
     end
 
     uis.InputBegan:Connect(function(key)
         if key.KeyCode ~= Enum.KeyCode.Insert then return end
 
-        ScreenGui.Enabled = not ScreenGui.Enabled
+		ScreenGui.Enabled = not ScreenGui.Enabled
         menu.open = ScreenGui.Enabled
 
         while ScreenGui.Enabled do
             uis.MouseIconEnabled = true
             rs.RenderStepped:Wait()
         end
-    end)
+	end)
 
     local ImageLabel = library:create("ImageButton", {
         Name = "Main",
@@ -178,35 +176,29 @@ function library.new(library_title, cfg_location)
         Modal = true,
     }, ScreenGui)
 
-    -- Close and Minimize Buttons
-    local isMinimized = false -- To track minimized state
+    -- Minimize and Close Buttons
+    local isMinimized = false
 
-    -- Function to minimize the menu (collapse to the top bar)
-    function minimize_ui(menu, title, tab_buttons, tabs)
+    -- Function to minimize the UI
+    function minimize_ui(menu)
         if not isMinimized then
+            -- Collapse to top bar only
             local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local target_size = UDim2.new(0, 700, 0, 30) -- Only show the top bar
-            TweenService:Create(menu, tween_info, {Size = target_size}):Play()
-
-            tab_buttons.Visible = false
-            tabs.Visible = false
+            TweenService:Create(menu, tween_info, {Size = UDim2.new(0, 700, 0, 30)}):Play()
         else
+            -- Expand back to original size
             local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local target_size = UDim2.new(0, 700, 0, 500)
-            TweenService:Create(menu, tween_info, {Size = target_size}):Play()
-
-            tab_buttons.Visible = true
-            tabs.Visible = true
+            TweenService:Create(menu, tween_info, {Size = UDim2.new(0, 700, 0, 500)}):Play()
         end
         isMinimized = not isMinimized
     end
 
-    -- Function to close (destroy) the UI
+    -- Close button function
     function close_ui(menu)
         menu:Destroy()
     end
 
-    -- Create buttons for Minimize and Close
+    -- Minimize and Close Buttons
     local minimize_button = library:create("TextButton", {
         Name = "MinimizeButton",
         Size = UDim2.new(0, 50, 0, 20),
@@ -227,22 +219,25 @@ function library.new(library_title, cfg_location)
         TextColor3 = Color3.fromRGB(255, 255, 255),
     }, ImageLabel)
 
-    -- Assign button actions
+    -- Button Connections
     minimize_button.MouseButton1Click:Connect(function()
-        minimize_ui(ImageLabel, Title, TabButtons, Tabs)
+        minimize_ui(ImageLabel)
     end)
 
     close_button.MouseButton1Click:Connect(function()
         close_ui(ImageLabel)
     end)
 
-    -- Add draggable functionality
+    function menu.GetPosition()
+        return ImageLabel.Position
+    end
+
     library:set_draggable(ImageLabel)
 
-    -- Title and other elements
     local Title = library:create("TextLabel", {
         Name = "Title",
         AnchorPoint = Vector2.new(0.5, 0),
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BackgroundTransparency = 1,
         Position = UDim2.new(0.5, 0, 0, 0),
         Size = UDim2.new(1, -22, 0, 30),
@@ -254,7 +249,6 @@ function library.new(library_title, cfg_location)
         RichText = true,
     }, ImageLabel)
 
-    -- Tabs and Sections
     local TabButtons = library:create("Frame", {
         Name = "TabButtons",
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -262,7 +256,7 @@ function library.new(library_title, cfg_location)
         Position = UDim2.new(0, 12, 0, 41),
         Size = UDim2.new(0, 76, 0, 447),
     }, ImageLabel)
-
+    
     local UIListLayout = library:create("UIListLayout", {
         HorizontalAlignment = Enum.HorizontalAlignment.Center
     }, TabButtons)
@@ -278,8 +272,6 @@ function library.new(library_title, cfg_location)
     local is_first_tab = true
     local selected_tab
     local tab_num = 1
-
-    -- Tab creation function
     function menu.new_tab(tab_image)
         local tab = {tab_num = tab_num}
         menu.values[tab_num] = {}
@@ -311,32 +303,58 @@ function library.new(library_title, cfg_location)
             Visible = false,
         }, Tabs)
 
+        local TabSections = library:create("Frame", {
+            Name = "TabSections",
+            Parent = Tab,
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 28),
+            ClipsDescendants = true,
+        }, Tab)
+
+        local UIListLayout = library:create("UIListLayout", {
+            FillDirection = Enum.FillDirection.Horizontal,
+            HorizontalAlignment = Enum.HorizontalAlignment.Center,
+        }, TabSections)
+
+        local TabFrames = library:create("Frame", {
+            Name = "TabFrames",
+            BackgroundTransparency = 1,
+            Position = UDim2.new(0, 0, 0, 29),
+            Size = UDim2.new(1, 0, 0, 418),
+        }, Tab)
+
         if is_first_tab then
             is_first_tab = false
             selected_tab = TabButton
-            Tab.Visible = true
+
             TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
+            Tab.Visible = true
         end
 
-        -- Switching tabs
-        TabButton.MouseButton1Click:Connect(function()
+        TabButton.MouseButton1Down:Connect(function()
             if selected_tab == TabButton then return end
 
-            for _, button in pairs(TabButtons:GetChildren()) do
-                if button:IsA("TextButton") then
-                    button.ImageLabel.ImageColor3 = Color3.fromRGB(100, 100, 100)
-                end
-            end
+            for _,TButtons in pairs (TabButtons:GetChildren()) do
+                if not TButtons:IsA("TextButton") then continue end
 
-            for _, frame in pairs(Tabs:GetChildren()) do
-                if frame:IsA("Frame") then
-                    frame.Visible = false
-                end
+                library:tween(TButtons.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
             end
-
+            for _,Tab in pairs (Tabs:GetChildren()) do
+                Tab.Visible = false
+            end
             Tab.Visible = true
             selected_tab = TabButton
-            TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
+            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(84, 101, 255)})
+        end)
+        TabButton.MouseEnter:Connect(function()
+            if selected_tab == TabButton then return end
+
+            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)})
+        end)
+        TabButton.MouseLeave:Connect(function()
+            if selected_tab == TabButton then return end
+
+            library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
         end)
 
         return tab
