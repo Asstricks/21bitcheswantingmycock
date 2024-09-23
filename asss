@@ -5,10 +5,11 @@ function library:tween(...) TweenService:Create(...):Play() end
 
 local uis = game:GetService("UserInputService")
 library.signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Asstricks/21bitcheswantingmycock/main/AntiFemboy"))()
+
 function library:create(Object, Properties, Parent)
     local Obj = Instance.new(Object)
 
-    for i,v in pairs (Properties) do
+    for i, v in pairs(Properties) do
         Obj[i] = v
     end
     if Parent ~= nil then
@@ -82,7 +83,7 @@ function library.new(library_title, cfg_location)
     if not isfolder(cfg_location) then
         makefolder(cfg_location)
     end
-    
+
     function menu.copy(original)
         local copy = {}
         for k, v in pairs(original) do
@@ -96,27 +97,27 @@ function library.new(library_title, cfg_location)
 
     function menu.save_cfg(cfg_name)
         local values_copy = menu.copy(menu.values)
-        for _,tab in next, values_copy do
-            for _,section in next, tab do
-                for _,sector in next, section do
-                    for _,element in next, sector do
+        for _, tab in next, values_copy do
+            for _, section in next, tab do
+                for _, sector in next, section do
+                    for _, element in next, sector do
                         if not element.Color then continue end
-                        element.Color = {R = element.Color.R, G = element.Color.G, B = element.Color.B}
+                        element.Color = { R = element.Color.R, G = element.Color.G, B = element.Color.B }
                     end
                 end
             end
         end
 
-        writefile(cfg_location..cfg_name..".txt", http:JSONEncode(values_copy))
+        writefile(cfg_location .. cfg_name .. ".txt", http:JSONEncode(values_copy))
     end
 
     function menu.load_cfg(cfg_name)
-        local new_values = http:JSONDecode(readfile(cfg_location..cfg_name..".txt"))
+        local new_values = http:JSONDecode(readfile(cfg_location .. cfg_name .. ".txt"))
 
-        for _,tab in next, new_values do
-            for _2,section in next, tab do
-                for _3,sector in next, section do
-                    for _4,element in next, sector do
+        for _, tab in next, new_values do
+            for _2, section in next, tab do
+                for _3, sector in next, section do
+                    for _4, element in next, sector do
                         if element.Color then
                             element.Color = Color3.new(element.Color.R, element.Color.G, element.Color.B)
                         end
@@ -149,6 +150,7 @@ function library.new(library_title, cfg_location)
     function menu.IsOpen()
         return menu.open
     end
+
     function menu.SetOpen(State)
         ScreenGui.Enabled = State
     end
@@ -581,4 +583,3 @@ function library.new(library_title, cfg_location)
 end
 
 return library
-
