@@ -33,6 +33,7 @@ local mouse = local_player:GetMouse()
 local http = game:GetService("HttpService")
 local rs = game:GetService("RunService")
 
+-- Function to set UI draggable
 function library:set_draggable(gui)
     local UserInputService = game:GetService("UserInputService")
 
@@ -92,6 +93,7 @@ function library.new(library_title, cfg_location)
         end
         return copy
     end
+
     function menu.save_cfg(cfg_name)
         local values_copy = menu.copy(menu.values)
         for _,tab in next, values_copy do
@@ -99,7 +101,6 @@ function library.new(library_title, cfg_location)
                 for _,sector in next, section do
                     for _,element in next, sector do
                         if not element.Color then continue end
-
                         element.Color = {R = element.Color.R, G = element.Color.G, B = element.Color.B}
                     end
                 end
@@ -108,6 +109,7 @@ function library.new(library_title, cfg_location)
 
         writefile(cfg_location..cfg_name..".txt", http:JSONEncode(values_copy))
     end
+
     function menu.load_cfg(cfg_name)
         local new_values = http:JSONDecode(readfile(cfg_location..cfg_name..".txt"))
 
@@ -148,7 +150,7 @@ function library.new(library_title, cfg_location)
         return menu.open
     end
     function menu.SetOpen(State)
-        ScreenGui.Enabled = state
+        ScreenGui.Enabled = State
     end
 
     uis.InputBegan:Connect(function(key)
@@ -182,18 +184,16 @@ function library.new(library_title, cfg_location)
     function minimize_ui(menu, title, tab_buttons, tabs)
         if not isMinimized then
             local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local target_position = UDim2.new(0.5, 0, 0, 0)
             local target_size = UDim2.new(0, 700, 0, 30) -- Only show the top bar
-            TweenService:Create(menu, tween_info, {Position = target_position, Size = target_size}):Play()
+            TweenService:Create(menu, tween_info, {Size = target_size}):Play()
 
-            title.Visible = false
+            title.Visible = true
             tab_buttons.Visible = false
             tabs.Visible = false
         else
             local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-            local target_position = UDim2.new(0.5, 0, 0.5, 0)
             local target_size = UDim2.new(0, 700, 0, 500)
-            TweenService:Create(menu, tween_info, {Position = target_position, Size = target_size}):Play()
+            TweenService:Create(menu, tween_info, {Size = target_size}):Play()
 
             title.Visible = true
             tab_buttons.Visible = true
@@ -245,7 +245,7 @@ function library.new(library_title, cfg_location)
         Name = "Title",
         AnchorPoint = Vector2.new(0.5, 0),
         BackgroundTransparency = 1,
-              Position = UDim2.new(0.5, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0, 0),
         Size = UDim2.new(1, -22, 0, 30),
         Font = Enum.Font.Ubuntu,
         Text = library_title,
@@ -345,7 +345,6 @@ function library.new(library_title, cfg_location)
 
             for _,TButtons in pairs (TabButtons:GetChildren()) do
                 if not TButtons:IsA("TextButton") then continue end
-
                 library:tween(TButtons.ImageLabel, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
             end
             for _,Tab in pairs (Tabs:GetChildren()) do
@@ -360,6 +359,7 @@ function library.new(library_title, cfg_location)
             if selected_tab == TabButton then return end
             library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(255, 255, 255)})
         end)
+
         TabButton.MouseLeave:Connect(function()
             if selected_tab == TabButton then return end
             library:tween(TabImage, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {ImageColor3 = Color3.fromRGB(100, 100, 100)})
@@ -512,12 +512,12 @@ function library.new(library_title, cfg_location)
                     TextSize = 14,
                 }, Border)
 
-                -- Slider Example (Fixed)
-                function sector.create_slider(min, max, default, parent)
+                -- Fixed slider code (working with executors)
+                function sector.create_slider(min, max, default)
                     local slider_container = library:create("Frame", {
                         Size = UDim2.new(1, 0, 0, 35),
                         BackgroundTransparency = 1,
-                    }, parent)
+                    }, Container)
 
                     local slider_label = library:create("TextLabel", {
                         Text = "Slider",
@@ -544,7 +544,7 @@ function library.new(library_title, cfg_location)
 
                     local dragging = false
                     local function update_slider(input)
-                        local mouse_position = math.clamp(input.X - slider_bar.AbsolutePosition.X, 0, slider_bar.AbsoluteSize.X)
+                        local mouse_position = math.clamp(input.Position.X - slider_bar.AbsolutePosition.X, 0, slider_bar.AbsoluteSize.X)
                         local value = math.floor((mouse_position / slider_bar.AbsoluteSize.X) * (max - min) + min)
                         slider_handle.Position = UDim2.new(mouse_position / slider_bar.AbsoluteSize.X, -5, 0.5, -5)
                     end
@@ -568,9 +568,6 @@ function library.new(library_title, cfg_location)
                     end)
                 end
 
-                -- Example slider creation
-                sector.create_slider(0, 100, 50, Container)
-
                 return sector
             end
 
@@ -584,3 +581,4 @@ function library.new(library_title, cfg_location)
 end
 
 return library
+
