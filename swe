@@ -1,0 +1,278 @@
+-- Signal class for handling events and signals
+local HttpService = game:GetService("HttpService")
+
+local ENABLE_TRACEBACK = false
+
+local Signal = {}
+Signal.__index = Signal
+Signal.ClassName = "Signal"
+
+function Signal.new()
+	local self = setmetatable({}, Signal)
+
+	self._bindableEvent = Instance.new("BindableEvent")
+	self._argMap = {}
+	self._source = ENABLE_TRACEBACK and debug.traceback() or ""
+
+	self._bindableEvent.Event:Connect(function(key)
+		self._argMap[key] = nil
+		if (not self._bindableEvent) and (not next(self._argMap)) then
+			self._argMap = nil
+		end
+	end)
+
+	return self
+end
+
+function Signal:Fire(...)
+	if not self._bindableEvent then
+		warn(("Signal is already destroyed. %s"):format(self._source))
+		return
+	end
+
+	local args = table.pack(...)
+	local key = HttpService:GenerateGUID(false)
+	self._argMap[key] = args
+	self._bindableEvent:Fire(key)
+end
+
+function Signal:Connect(handler)
+	if not (type(handler) == "function") then
+		error(("connect(%s)"):format(typeof(handler)), 2)
+	end
+
+	return self._bindableEvent.Event:Connect(function(key)
+		local args = self._argMap[key]
+		if args then
+			handler(table.unpack(args, 1, args.n))
+		else
+			error("Missing arg data, probably due to reentrance.")
+		end
+	end)
+end
+
+function Signal:Wait()
+	local key = self._bindableEvent.Event:Wait()
+	local args = self._argMap[key]
+	if args then
+		return table.unpack(args, 1, args.n)
+	else
+		error("Missing arg data, probably due to reentrance.")
+		return nil
+	end
+end
+
+function Signal:Destroy()
+	if self._bindableEvent then
+		self._bindableEvent:Destroy()
+		self._bindableEvent = nil
+	end
+	setmetatable(self, nil)
+end
+
+return Signal
+
+-- Begin UI implementation with Signal integration
+local library = {}
+
+local TweenService = game:GetService("TweenService")
+function library:tween(...) TweenService:Create(...):Play() end
+
+local uis = game:GetService("UserInputService")
+library.signal = Signal -- Signal class from above
+
+function library:create(Object, Properties, Parent)
+	local Obj = Instance.new(Object)
+
+	for i, v in pairs(Properties) do
+		Obj[i] = v
+	end
+	if Parent ~= nil then
+		Obj.Parent = Parent
+	end
+
+	return Obj
+end
+
+local text_service = game:GetService("TextService")
+function library:get_text_size(...)
+	return text_service:GetTextSize(...)
+end
+
+local local_player = game:GetService("Players").LocalPlayer
+local mouse = local_player:GetMouse()
+
+local rs = game:GetService("RunService")
+
+function library:set_draggable(gui)
+	local UserInputService = game:GetService("UserInputService")
+
+	local dragging
+	local dragInput
+	local dragStart
+	local startPos
+
+	local function update(input)
+		local delta = input.Position - dragStart
+		gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+
+	gui.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			dragging = true
+			dragStart = input.Position
+			startPos = gui.Position
+
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragging = false
+				end
+			end)
+		end
+	end)
+
+	gui.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+			dragInput = input
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if input == dragInput and dragging then
+			update(input)
+		end
+	end)
+end
+
+function library.new(library_title, cfg_location)
+	local menu = {}
+	menu.values = {}
+	menu.on_load_cfg = library.signal.new()
+
+	menu.open = true
+	local ScreenGui = library:create("ScreenGui", {
+		ResetOnSpawn = false,
+		ZIndexBehavior = Enum.ZIndexBehavior.Global,
+		Name = "unknown",
+		IgnoreGuiInset = true,
+	})
+
+	if syn then
+		syn.protect_gui(ScreenGui)
+	end
+
+	ScreenGui.Parent = game:GetService("CoreGui")
+
+	function menu.IsOpen()
+		return menu.open
+	end
+
+	function menu.SetOpen(State)
+		ScreenGui.Enabled = State
+	end
+
+	uis.InputBegan:Connect(function(key)
+		if key.KeyCode ~= Enum.KeyCode.Insert then return end
+		ScreenGui.Enabled = not ScreenGui.Enabled
+		menu.open = ScreenGui.Enabled
+
+		while ScreenGui.Enabled do
+			uis.MouseIconEnabled = true
+			rs.RenderStepped:Wait()
+		end
+	end)
+
+	local ImageLabel = library:create("ImageButton", {
+		Name = "Main",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+		BorderColor3 = Color3.fromRGB(78, 93, 234),
+		Position = UDim2.new(0.5, 0, 0.5, 0),
+		Size = UDim2.new(0, 700, 0, 500),
+		Image = "http://www.roblox.com/asset/?id=7300333488",
+		AutoButtonColor = false,
+		Modal = true,
+	}, ScreenGui)
+
+	-- Minimize and Close Buttons
+	local isMinimized = false
+
+	function minimize_ui(menu)
+		if not isMinimized then
+			-- Collapse to top bar only
+			local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			TweenService:Create(menu, tween_info, {Size = UDim2.new(0, 700, 0, 30)}):Play()
+		else
+			-- Expand back to original size
+			local tween_info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			TweenService:Create(menu, tween_info, {Size = UDim2.new(0, 700, 0, 500)}):Play()
+		end
+		isMinimized = not isMinimized
+	end
+
+	function close_ui(menu)
+		menu:Destroy()
+	end
+
+	local minimize_button = library:create("TextButton", {
+		Name = "MinimizeButton",
+		Size = UDim2.new(0, 50, 0, 20),
+		Position = UDim2.new(1, -110, 0, 5),
+		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+		BorderColor3 = Color3.fromRGB(78, 93, 234),
+		Text = "-",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+	}, ImageLabel)
+
+	local close_button = library:create("TextButton", {
+		Name = "CloseButton",
+		Size = UDim2.new(0, 50, 0, 20),
+		Position = UDim2.new(1, -60, 0, 5),
+		BackgroundColor3 = Color3.fromRGB(15, 15, 15),
+		BorderColor3 = Color3.fromRGB(78, 93, 234),
+		Text = "X",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+	}, ImageLabel)
+
+	minimize_button.MouseButton1Click:Connect(function()
+		minimize_ui(ImageLabel)
+	end)
+
+	close_button.MouseButton1Click:Connect(function()
+		close_ui(ImageLabel)
+	end)
+
+	function menu.GetPosition()
+		return ImageLabel.Position
+	end
+
+	library:set_draggable(ImageLabel)
+
+	local Title = library:create("TextLabel", {
+		Name = "Title",
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0.5, 0, 0, 0),
+		Size = UDim2.new(1, -22, 0, 30),
+		Font = Enum.Font.Ubuntu,
+		Text = library_title,
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		TextSize = 16,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		RichText = true,
+	}, ImageLabel)
+
+	local TabButtons = library:create("Frame", {
+		Name = "TabButtons",
+		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+		BackgroundTransparency = 1,
+		Position = UDim2.new(0, 12, 0, 41),
+		Size = UDim2.new(0, 76, 0, 447),
+	}, ImageLabel)
+
+	-- Continue with your tab creation logic...
+	return menu
+end
+
+return library
