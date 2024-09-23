@@ -181,8 +181,102 @@ function library.new(library_title)
 	}, ImageLabel)
 
 	-- Tab functionality
+	local Tabs = {}
 	function menu.new_tab(tab_image)
-		-- Tab logic can be inserted here as per your example
+		local tab = {}
+		tab.sections = {}
+
+		local TabButton = library:create("TextButton", {
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+			BackgroundTransparency = 1,
+			Size = UDim2.new(0, 76, 0, 90),
+			Text = "",
+		}, ImageLabel)
+
+		local TabImage = library:create("ImageLabel", {
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Position = UDim2.new(0.5, 0, 0.5, 0),
+			Size = UDim2.new(0, 32, 0, 32),
+			Image = tab_image,
+			ImageColor3 = Color3.fromRGB(100, 100, 100),
+		}, TabButton)
+
+		table.insert(Tabs, tab)
+
+		function tab.new_section(section_name)
+			local section = {}
+			section.elements = {}
+
+			local SectionFrame = library:create("Frame", {
+				Name = "SectionFrame",
+				BackgroundTransparency = 1,
+				Size = UDim2.new(1, 0, 0, 40),
+			}, ImageLabel)
+
+			function section.element(type, text, data, callback)
+				local element = {}
+
+				if type == "Button" then
+					local Button = library:create("TextButton", {
+						Text = text,
+						Size = UDim2.new(0, 200, 0, 50),
+						BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+						BorderColor3 = Color3.fromRGB(0, 0, 0),
+					}, SectionFrame)
+
+					Button.MouseButton1Click:Connect(function()
+						callback()
+					end)
+				elseif type == "Toggle" then
+					local ToggleButton = library:create("TextButton", {
+						Text = text,
+						Size = UDim2.new(0, 200, 0, 50),
+						BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+						BorderColor3 = Color3.fromRGB(0, 0, 0),
+					}, SectionFrame)
+
+					local state = false
+					ToggleButton.MouseButton1Click:Connect(function()
+						state = not state
+						callback({Toggle = state})
+					end)
+				elseif type == "Slider" then
+					local SliderFrame = library:create("Frame", {
+						Size = UDim2.new(0, 200, 0, 50),
+						BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+					}, SectionFrame)
+
+					local Slider = library:create("TextLabel", {
+						Text = text .. " " .. tostring(data.default.default),
+						Size = UDim2.new(0, 200, 0, 50),
+					}, SliderFrame)
+
+					SliderFrame.InputChanged:Connect(function(input)
+						local sliderValue = math.clamp(input.Position.X, data.default.min, data.default.max)
+						callback({Slider = sliderValue})
+					end)
+				elseif type == "Dropdown" then
+					local Dropdown = library:create("TextButton", {
+						Text = text,
+						Size = UDim2.new(0, 200, 0, 50),
+						BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+					}, SectionFrame)
+
+					Dropdown.MouseButton1Click:Connect(function()
+						callback({Dropdown = data.options[1]})
+					end)
+				end
+
+				table.insert(section.elements, element)
+				return element
+			end
+
+			table.insert(tab.sections, section)
+			return section
+		end
+
+		return tab
 	end
 
 	return menu
