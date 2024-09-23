@@ -77,7 +77,7 @@ end
 function library.new(library_title, cfg_location)
     local menu = {}
     menu.values = {}
-    menu.on_load_cfg = Instance.new("BindableEvent") -- changed to BindableEvent
+    menu.on_load_cfg = Instance.new("BindableEvent")
 
     if not isfolder(cfg_location) then
         makefolder(cfg_location)
@@ -188,7 +188,6 @@ function library.new(library_title, cfg_location)
             local target_size = UDim2.new(0, 700, 0, 30) -- Only show the top bar
             TweenService:Create(menu, tween_info, {Size = target_size}):Play()
 
-            title.Visible = true
             tab_buttons.Visible = false
             tabs.Visible = false
         else
@@ -196,7 +195,6 @@ function library.new(library_title, cfg_location)
             local target_size = UDim2.new(0, 700, 0, 500)
             TweenService:Create(menu, tween_info, {Size = target_size}):Play()
 
-            title.Visible = true
             tab_buttons.Visible = true
             tabs.Visible = true
         end
@@ -313,9 +311,34 @@ function library.new(library_title, cfg_location)
             Visible = false,
         }, Tabs)
 
-        -- Rest of the tabs/sections would continue here...
-        -- (Ensuring that each function works properly and connecting to the appropriate sections and elements as shown in your example)
-        
+        if is_first_tab then
+            is_first_tab = false
+            selected_tab = TabButton
+            Tab.Visible = true
+            TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
+        end
+
+        -- Switching tabs
+        TabButton.MouseButton1Click:Connect(function()
+            if selected_tab == TabButton then return end
+
+            for _, button in pairs(TabButtons:GetChildren()) do
+                if button:IsA("TextButton") then
+                    button.ImageLabel.ImageColor3 = Color3.fromRGB(100, 100, 100)
+                end
+            end
+
+            for _, frame in pairs(Tabs:GetChildren()) do
+                if frame:IsA("Frame") then
+                    frame.Visible = false
+                end
+            end
+
+            Tab.Visible = true
+            selected_tab = TabButton
+            TabImage.ImageColor3 = Color3.fromRGB(84, 101, 255)
+        end)
+
         return tab
     end
 
