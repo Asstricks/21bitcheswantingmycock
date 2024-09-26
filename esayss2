@@ -2055,53 +2055,68 @@ end
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -60, 0, 0), -- Positioned 60px from the right of the headerBar
+    Position = UDim2.new(1, -70, 0, 5), -- Positioned 70px from the right of the headerBar
     Size = UDim2.new(0, 30, 0, 30), -- Button size
     BackgroundColor3 = Color3.fromRGB(35, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
-    Font = Enum.Font.SourceSans,
+    Font = Enum.Font.SourceSansBold,
     TextSize = 20,
+    -- Round button corners
+    CornerRadius = UDim.new(0, 8),
+    BackgroundTransparency = 0.2,
 })
 
 -- Create Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
-    Position = UDim2.new(1, -30, 0, 0), -- Positioned 30px from the right of the headerBar
+    Position = UDim2.new(1, -35, 0, 5), -- Positioned 35px from the right of the headerBar
     Size = UDim2.new(0, 30, 0, 30), -- Button size
-    BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+    BackgroundColor3 = Color3.fromRGB(200, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
-    Font = Enum.Font.SourceSans,
+    Font = Enum.Font.SourceSansBold,
     TextSize = 20,
+    -- Round button corners
+    CornerRadius = UDim.new(0, 8),
+    BackgroundTransparency = 0.2,
 })
 
 -- Create Expand Button (Initially hidden)
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -60, 0, 0), -- Same position as MinimizeButton
+    Position = UDim2.new(1, -70, 0, 5), -- Same position as MinimizeButton
     Size = UDim2.new(0, 30, 0, 30), -- Button size
     BackgroundColor3 = Color3.fromRGB(35, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
-    Font = Enum.Font.SourceSans,
+    Font = Enum.Font.SourceSansBold,
     TextSize = 20,
+    -- Round button corners
+    CornerRadius = UDim.new(0, 8),
+    BackgroundTransparency = 0.2,
     Visible = false, -- Hidden initially
 })
 
 -- Minimize Function
 local isMinimized = false
+local originalSize = mainContainer.Size -- Store original size for restoring later
 local function minimizeMenu()
     if not isMinimized then
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to minimize
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to minimize (only show header bar)
+        for _,child in ipairs(mainContainer:GetChildren()) do
+            if child ~= headerBar then
+                child.Visible = false -- Hide all except the header bar
+            end
+        end
         MinimizeButton.Visible = false
         ExpandButton.Visible = true
         isMinimized = true
@@ -2111,7 +2126,12 @@ end
 -- Expand Function
 local function expandMenu()
     if isMinimized then
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Tween to expand
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = originalSize}) -- Tween to expand back to original size
+        for _,child in ipairs(mainContainer:GetChildren()) do
+            if child ~= headerBar then
+                child.Visible = true -- Show all children again
+            end
+        end
         ExpandButton.Visible = false
         MinimizeButton.Visible = true
         isMinimized = false
@@ -2127,6 +2147,19 @@ end
 MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
 ExpandButton.MouseButton1Click:Connect(expandMenu)
 ExitButton.MouseButton1Click:Connect(exitMenu)
+
+-- Create a round corner for the buttons
+local function createRoundCorner(uiElement, radius)
+    local uicorner = Instance.new("UICorner")
+    uicorner.CornerRadius = UDim.new(0, radius)
+    uicorner.Parent = uiElement
+end
+
+-- Add round corners to buttons
+createRoundCorner(MinimizeButton, 8)
+createRoundCorner(ExitButton, 8)
+createRoundCorner(ExpandButton, 8)
+
 
                     return element
                 end
