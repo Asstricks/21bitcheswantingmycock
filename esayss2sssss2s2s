@@ -2078,7 +2078,7 @@ end
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -70, 0, 5), -- Positioned more to the right
+    Position = UDim2.new(1, -60, 0, 5), -- Positioned more to the right
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2096,7 +2096,7 @@ makeRounded(MinimizeButton, 5) -- Make the button round
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
-    Position = UDim2.new(1, -40, 0, 5), -- Positioned next to MinimizeButton
+    Position = UDim2.new(1, -30, 0, 5), -- Positioned next to MinimizeButton
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2114,7 +2114,7 @@ makeRounded(ExitButton, 5) -- Make the button round
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -70, 0, 5), -- Same position as MinimizeButton
+    Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
