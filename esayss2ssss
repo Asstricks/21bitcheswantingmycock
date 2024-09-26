@@ -2042,9 +2042,8 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
--- Make sure TopBar and MainFrame are properly defined
-
-local TopBar = MainFrame:FindFirstChild("TopBar")  -- Adjust this if needed
+-- Ensure MainFrame and TopBar are defined correctly
+local TopBar = MainFrame:FindFirstChild("TopBar")
 if not TopBar then
     warn("TopBar not found")
     return
@@ -2057,12 +2056,12 @@ local ExitButton = library:create("TextButton", {
     Font = Enum.Font.Ubuntu,
     TextSize = 18,
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundColor3 = Color3.fromRGB(255, 0, 0),  -- Red for exit
+    BackgroundColor3 = Color3.fromRGB(255, 0, 0),
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     Size = UDim2.new(0, 28, 0, 28),
-    Position = UDim2.new(1, -35, 0, 5),  -- Adjust this to place it correctly in the top-right
+    Position = UDim2.new(1, -35, 0, 5),  -- Adjusted for correct placement
     Visible = true,
-    ZIndex = 2,  -- Ensure it appears on top of other elements
+    ZIndex = 3,  -- Ensure it's on top
     Parent = TopBar,
 })
 
@@ -2076,9 +2075,9 @@ local MinimizeButton = library:create("TextButton", {
     BackgroundColor3 = Color3.fromRGB(25, 25, 25),
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     Size = UDim2.new(0, 28, 0, 28),
-    Position = UDim2.new(1, -65, 0, 5),  -- Adjust to position next to ExitButton
+    Position = UDim2.new(1, -65, 0, 5),  -- Adjusted for correct placement next to ExitButton
     Visible = true,
-    ZIndex = 2,  -- Ensure it appears on top
+    ZIndex = 3,  -- Ensure it's on top
     Parent = TopBar,
 })
 
@@ -2094,7 +2093,7 @@ local MaximizeButton = library:create("TextButton", {
     Size = UDim2.new(0, 28, 0, 28),
     Position = UDim2.new(1, -65, 0, 5),  -- Same position as MinimizeButton
     Visible = false,  -- Initially hidden
-    ZIndex = 2,
+    ZIndex = 3,  -- Ensure it's on top
     Parent = TopBar,
 })
 
