@@ -2042,43 +2042,11 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
--- Ensure to find the HeaderBar or equivalent top bar in your UI
-local mainContainer = ImageLabel -- Assuming ImageLabel is your main frame
-local headerBar = mainContainer:FindFirstChild("HeaderBar") or mainContainer -- If HeaderBar doesn't exist, use mainContainer directly
-
--- Ensure mainContainer exists
-if not mainContainer then
-    error("MainContainer not found")
-end
-
--- Function to hide or show specific elements of the UI
-local function toggleUIElements(state)
-    -- Iterate through all children of the main container and hide/show UI elements except the top bar, exit, and minimize buttons
-    for _, child in ipairs(mainContainer:GetChildren()) do
-        if child.Name ~= "HeaderBar" and child.Name ~= "MinimizeButton" and child.Name ~= "ExitButton" and child.Name ~= "ExpandButton" and child.Name ~= "Title" then
-            child.Visible = state
-        end
-    end
-end
-
--- Helper function to make buttons rounded
-local function makeRounded(button, radius)
-    local uiCorner = Instance.new("UICorner")
-    uiCorner.CornerRadius = UDim.new(0, radius) -- Set corner radius
-    uiCorner.Parent = button
-end
-
--- Adjusted button style function to match the UI theme
-local function applyButtonTheme(button, bgColor, textColor)
-    button.BackgroundColor3 = bgColor
-    button.TextColor3 = textColor
-end
-
 -- Create Minimize Button
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -60, 0, 5), -- Positioned more to the right
+    Position = UDim2.new(1, -60, 0, 2), -- Moved up slightly, Y offset changed from 5 to 2
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2095,8 +2063,8 @@ makeRounded(MinimizeButton, 5) -- Make the button round
 -- Create Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
-    Text = "x",  -- Small "x" for the exit button
-    Position = UDim2.new(1, -30, 0, 5), -- Positioned next to MinimizeButton
+    Text = "X",  -- Small "x" for the exit button
+    Position = UDim2.new(1, -30, 0, 2), -- Moved up slightly, Y offset changed from 5 to 2
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2115,7 +2083,7 @@ makeRounded(ExitButton, 5) -- Make the button round
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
+    Position = UDim2.new(1, -60, 0, 2), -- Moved up slightly, Y offset changed from 5 to 2
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2129,39 +2097,6 @@ local ExpandButton = library:create("TextButton", {
 -- Apply the correct theme for ExpandButton
 applyButtonTheme(ExpandButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
 makeRounded(ExpandButton, 5) -- Make the button round
-
--- Minimize Function
-local isMinimized = false
-local function minimizeMenu()
-    if not isMinimized then
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to minimize
-        toggleUIElements(false) -- Hide other UI elements
-        MinimizeButton.Visible = false
-        ExpandButton.Visible = true
-        isMinimized = true
-    end
-end
-
--- Expand Function
-local function expandMenu()
-    if isMinimized then
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Tween to expand
-        toggleUIElements(true) -- Show other UI elements
-        ExpandButton.Visible = false
-        MinimizeButton.Visible = true
-        isMinimized = false
-    end
-end
-
--- Exit Function
-local function exitMenu()
-    mainContainer:Destroy() -- Destroys the entire UI
-end
-
--- Button connections
-MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
-ExpandButton.MouseButton1Click:Connect(expandMenu)
-ExitButton.MouseButton1Click:Connect(exitMenu)
 
 
                     return element
