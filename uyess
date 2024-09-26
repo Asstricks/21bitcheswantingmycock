@@ -2045,20 +2045,27 @@ end
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 
--- Get reference to MainFrame and TopBar
--- Replace 'MainFrame' and 'TopBar' with the exact names in your UI
-local mainFrame = script.Parent:FindFirstChild("MainFrame") or script.Parent -- Adjust according to your structure
-local topBar = mainFrame:FindFirstChild("TopBar") -- Make sure this is correct
+-- Debugging: Check where the script is running from and inspect its parent
+print("Script is running from: ", script.Parent)
 
--- Handle missing references
-if not mainFrame then
-    warn("MainFrame not found! Make sure it's correctly named and initialized.")
-    return
+-- Try to get references to MainFrame and TopBar, and print debug info
+local mainFrame = script.Parent:FindFirstChild("MainFrame")
+if mainFrame then
+    print("MainFrame found!")
+else
+    warn("MainFrame not found! Please make sure MainFrame exists in the parent.")
 end
 
-if not topBar then
-    warn("TopBar not found! Make sure it's correctly named and initialized.")
-    return
+local topBar = mainFrame and mainFrame:FindFirstChild("TopBar") or nil
+if topBar then
+    print("TopBar found!")
+else
+    warn("TopBar not found! Please make sure TopBar exists inside MainFrame.")
+end
+
+-- If MainFrame or TopBar don't exist, stop executing further
+if not mainFrame or not topBar then
+    return -- Stop further execution if references are missing
 end
 
 -- Create buttons for Minimize, Maximize, and Exit
@@ -2076,6 +2083,7 @@ local function createButton(name, text, position)
     return button
 end
 
+-- Button creation
 local minimizeButton = createButton("MinimizeButton", "-", UDim2.new(1, -60, 0, 5))
 local maximizeButton = createButton("MaximizeButton", "+", UDim2.new(1, -60, 0, 5))
 maximizeButton.Visible = false -- Initially hidden
