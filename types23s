@@ -176,6 +176,132 @@ function library.new(library_title, cfg_location)
         AutoButtonColor = false,
         Modal = true,
     }, ScreenGui)
+-- ======= Create Top Bar =======
+
+-- Create Top Bar Frame
+local TopBar = library:create("Frame", {
+    Name = "TopBar",
+    BackgroundColor3 = Color3.fromRGB(30, 30, 30), -- Dark gray background
+    BorderSizePixel = 0,
+    Size = UDim2.new(1, 0, 0, 30), -- Full width of Main, height 30px
+    Position = UDim2.new(0, 0, 0, 0), -- Anchored to the top of Main
+}, ImageLabel) -- Parent is the Main ImageLabel
+
+-- Create Minimize Button (-): Positioned 60 pixels from the right edge of the Top Bar.
+local MinimizeButton = library:create("TextButton", {
+    Name = "MinimizeButton",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(1, -60, 0, 5), -- 60 pixels from the right edge, 5 pixels from the top
+    Size = UDim2.new(0, 20, 0, 20),
+    Font = Enum.Font.SourceSans,
+    Text = "-",
+    TextColor3 = Color3.fromRGB(150, 150, 150),
+    TextSize = 18,
+    TextStrokeTransparency = 1,
+    ZIndex = 2, -- Ensure the button is above other UI elements
+}, TopBar)
+
+-- Create Extend Button (+): Positioned identically to MinimizeButton but initially hidden.
+local ExtendButton = library:create("TextButton", {
+    Name = "ExtendButton",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
+    Size = UDim2.new(0, 20, 0, 20),
+    Font = Enum.Font.SourceSans,
+    Text = "+",
+    TextColor3 = Color3.fromRGB(150, 150, 150),
+    TextSize = 18,
+    TextStrokeTransparency = 1,
+    Visible = false, -- Hidden initially
+    ZIndex = 2,
+}, TopBar)
+
+-- Create Exit Button (X): Positioned 30 pixels from the right edge, visible alongside MinimizeButton.
+local ExitButton = library:create("TextButton", {
+    Name = "ExitButton",
+    BackgroundTransparency = 1,
+    Position = UDim2.new(1, -30, 0, 5), -- 30 pixels from the right edge
+    Size = UDim2.new(0, 20, 0, 20),
+    Font = Enum.Font.SourceSans,
+    Text = "X",
+    TextColor3 = Color3.fromRGB(150, 150, 150),
+    TextSize = 18,
+    TextStrokeTransparency = 1,
+    ZIndex = 2,
+}, TopBar)
+-- ======= Button Functionalities =======
+
+-- Store the original size of Main
+local originalMainSize = ImageLabel.Size
+
+-- Variable to track minimized state
+local isMinimized = false
+
+-- Function to Minimize the Menu
+local function minimizeMenu()
+    if isMinimized then return end
+    isMinimized = true
+
+    -- Tween the Main frame to reduce its height to the TopBar's height
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    library:tween(ImageLabel, tweenInfo, {
+        Size = UDim2.new(originalMainSize.X.Scale, originalMainSize.X.Offset, 0, TopBar.Size.Y.Offset)
+    })
+
+    -- Hide all children of Main except TopBar
+    for _, child in ipairs(ImageLabel:GetChildren()) do
+        if child ~= TopBar then
+            child.Visible = false
+        end
+    end
+
+    -- Toggle button visibility
+    MinimizeButton.Visible = false
+    ExtendButton.Visible = true
+end
+
+-- Function to Extend the Menu
+local function extendMenu()
+    if not isMinimized then return end
+    isMinimized = false
+
+    -- Tween the Main frame back to original size
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    library:tween(ImageLabel, tweenInfo, {
+        Size = originalMainSize
+    })
+
+    -- Show all children of Main except TopBar
+    for _, child in ipairs(ImageLabel:GetChildren()) do
+        if child ~= TopBar then
+            child.Visible = true
+        end
+    end
+
+    -- Toggle button visibility
+    MinimizeButton.Visible = true
+    ExtendButton.Visible = false
+end
+
+-- Function to Exit the Menu
+local function exitMenu()
+    -- Tween the Main frame to fade out
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    library:tween(ImageLabel, tweenInfo, {
+        BackgroundTransparency = 1,
+        Visible = false
+    })
+
+    -- Optionally, destroy the Main frame after tweening
+    rs.RenderStepped:Wait(0.3) -- Wait for the tween to complete
+    ImageLabel:Destroy()
+end
+
+-- Connect Buttons to Their Functions
+MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
+ExtendButton.MouseButton1Click:Connect(extendMenu)
+ExitButton.MouseButton1Click:Connect(exitMenu)
+
 
     function menu.GetPosition()
         return ImageLabel.Position
