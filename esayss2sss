@@ -2042,35 +2042,47 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
--- Update Minimize Button
-local MinimizeButton = library:create("TextButton", {
-    Name = "MinimizeButton",
-    Text = "-",
-    Font = Enum.Font.Ubuntu,
-    TextSize = 18,
-    TextColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundColor3 = Color3.fromRGB(25, 25, 25),  -- Match UI theme
-    BorderColor3 = Color3.fromRGB(0, 0, 0),
-    Size = UDim2.new(0, 28, 0, 28),
-    Position = UDim2.new(1, -65, 0, 5),  -- Adjust position
-    Parent = TopBar,
-})
+-- Make sure TopBar and MainFrame are properly defined
 
--- Update Exit Button
+local TopBar = MainFrame:FindFirstChild("TopBar")  -- Adjust this if needed
+if not TopBar then
+    warn("TopBar not found")
+    return
+end
+
+-- Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
     Font = Enum.Font.Ubuntu,
     TextSize = 18,
     TextColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundColor3 = Color3.fromRGB(255, 0, 0),  -- Red color for exit
+    BackgroundColor3 = Color3.fromRGB(255, 0, 0),  -- Red for exit
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     Size = UDim2.new(0, 28, 0, 28),
-    Position = UDim2.new(1, -35, 0, 5),  -- Adjust position
+    Position = UDim2.new(1, -35, 0, 5),  -- Adjust this to place it correctly in the top-right
+    Visible = true,
+    ZIndex = 2,  -- Ensure it appears on top of other elements
     Parent = TopBar,
 })
 
--- Update Maximize Button (Initially hidden)
+-- Minimize Button
+local MinimizeButton = library:create("TextButton", {
+    Name = "MinimizeButton",
+    Text = "-",
+    Font = Enum.Font.Ubuntu,
+    TextSize = 18,
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    BorderColor3 = Color3.fromRGB(0, 0, 0),
+    Size = UDim2.new(0, 28, 0, 28),
+    Position = UDim2.new(1, -65, 0, 5),  -- Adjust to position next to ExitButton
+    Visible = true,
+    ZIndex = 2,  -- Ensure it appears on top
+    Parent = TopBar,
+})
+
+-- Maximize Button (Initially hidden)
 local MaximizeButton = library:create("TextButton", {
     Name = "MaximizeButton",
     Text = "+",
@@ -2080,14 +2092,15 @@ local MaximizeButton = library:create("TextButton", {
     BackgroundColor3 = Color3.fromRGB(25, 25, 25),
     BorderColor3 = Color3.fromRGB(0, 0, 0),
     Size = UDim2.new(0, 28, 0, 28),
-    Position = UDim2.new(1, -65, 0, 5),  -- Same position as minimize
-    Visible = false,  -- Hidden initially
+    Position = UDim2.new(1, -65, 0, 5),  -- Same position as MinimizeButton
+    Visible = false,  -- Initially hidden
+    ZIndex = 2,
     Parent = TopBar,
 })
 
 -- Tweening Functions
 local function minimizeMenu()
-    -- Minimize the content but keep TopBar and buttons intact
+    -- Minimize the menu (keep TopBar visible)
     library:tween(MainFrame, TweenInfo.new(0.3), { Size = UDim2.new(0, TopBar.Size.X.Offset, 0, TopBar.Size.Y.Offset) })
     MinimizeButton.Visible = false
     MaximizeButton.Visible = true
