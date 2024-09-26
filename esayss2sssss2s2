@@ -2078,7 +2078,7 @@ end
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -90, 0, 5), -- Positioned 90px from the right of the headerBar
+    Position = UDim2.new(1, -70, 0, 5), -- Positioned more to the right
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2096,7 +2096,7 @@ makeRounded(MinimizeButton, 5) -- Make the button round
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
-    Position = UDim2.new(1, -60, 0, 5), -- Positioned 60px from the right of the headerBar
+    Position = UDim2.new(1, -40, 0, 5), -- Positioned next to MinimizeButton
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2106,15 +2106,15 @@ local ExitButton = library:create("TextButton", {
     ClipsDescendants = true,
 })
 
--- Apply the correct theme for ExitButton
-applyButtonTheme(ExitButton, Color3.fromRGB(65, 15, 15), Color3.fromRGB(255, 255, 255)) -- Darker red for exit
+-- Apply the correct theme for ExitButton (same as MinimizeButton now)
+applyButtonTheme(ExitButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
 makeRounded(ExitButton, 5) -- Make the button round
 
 -- Create Expand Button (Initially hidden)
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -90, 0, 5), -- Same position as MinimizeButton
+    Position = UDim2.new(1, -70, 0, 5), -- Same position as MinimizeButton
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
@@ -2161,7 +2161,6 @@ end
 MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
 ExpandButton.MouseButton1Click:Connect(expandMenu)
 ExitButton.MouseButton1Click:Connect(exitMenu)
-
 
 
                     return element
