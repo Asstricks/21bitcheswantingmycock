@@ -2042,131 +2042,93 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
+-- Assuming your main UI container is named "Main" and your top bar is "HeaderBar"
+local mainContainer = ImageLabel -- ImageLabel should be the main frame container (as per your existing code)
+local headerBar = mainContainer:FindFirstChild("HeaderBar") -- Assuming you have a "HeaderBar" or top section
 
--- Try to get the script's parent and print where it's running from
-local parent = script.Parent or game.CoreGui:FindFirstChild("YourGuiName") -- Add the actual name of your ScreenGui here
-
-print("Script is running from: ", parent)
-
--- Check if MainFrame exists either in script.Parent or game.CoreGui
-local mainFrame = parent:FindFirstChild("MainFrame")
-if mainFrame then
-    print("MainFrame found!")
-else
-    warn("MainFrame not found! Please make sure MainFrame exists in the parent.")
+-- Make sure mainContainer exists
+if not mainContainer then
+    error("MainContainer not found")
 end
 
--- Check if TopBar exists inside MainFrame
-local topBar = mainFrame and mainFrame:FindFirstChild("TopBar") or nil
-if topBar then
-    print("TopBar found!")
-else
-    warn("TopBar not found! Please make sure TopBar exists inside MainFrame.")
-end
+-- Minimize/Expand button
+local isMinimized = false
+local MinimizeButton = library:create("TextButton", {
+    Name = "MinimizeButton",
+    Text = "-",
+    Position = UDim2.new(1, -60, 0, 0), -- Positioned 60px from the right
+    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BorderSizePixel = 0,
+    Parent = headerBar,
+    AutoButtonColor = false,
+    Font = Enum.Font.SourceSans,
+    TextSize = 20,
+})
 
--- If MainFrame or TopBar doesn't exist, stop executing further
-if not mainFrame or not topBar then
-    return -- Stop further execution if references are missing
-end
+-- Exit button
+local ExitButton = library:create("TextButton", {
+    Name = "ExitButton",
+    Text = "X",
+    Position = UDim2.new(1, -30, 0, 0), -- Positioned 30px from the right
+    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BorderSizePixel = 0,
+    Parent = headerBar,
+    AutoButtonColor = false,
+    Font = Enum.Font.SourceSans,
+    TextSize = 20,
+})
 
--- Create buttons for Minimize, Maximize, and Exit
-local function createButton(name, text, position)
-    local button = Instance.new("TextButton")
-    button.Name = name
-    button.Parent = topBar
-    button.BackgroundTransparency = 1
-    button.Position = position
-    button.Size = UDim2.new(0, 20, 0, 20)
-    button.Font = Enum.Font.SourceSans
-    button.Text = text
-    button.TextColor3 = Color3.fromRGB(150, 150, 150)
-    button.TextSize = 18
-    return button
-end
+-- Expand Button (Initially hidden, to toggle back when minimized)
+local ExpandButton = library:create("TextButton", {
+    Name = "ExpandButton",
+    Text = "+",
+    Position = UDim2.new(1, -60, 0, 0), -- Same position as minimize
+    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+    TextColor3 = Color3.fromRGB(255, 255, 255),
+    BorderSizePixel = 0,
+    Parent = headerBar,
+    AutoButtonColor = false,
+    Font = Enum.Font.SourceSans,
+    TextSize = 20,
+    Visible = false, -- Hidden by default
+})
 
--- Button creation
-local minimizeButton = createButton("MinimizeButton", "-", UDim2.new(1, -60, 0, 5))
-local maximizeButton = createButton("MaximizeButton", "+", UDim2.new(1, -60, 0, 5))
-maximizeButton.Visible = false -- Initially hidden
-local exitButton = createButton("ExitButton", "X", UDim2.new(1, -30, 0, 5))
-
--- Store the original size of MainFrame
-local originalSize = mainFrame.Size
-
--- Minimize function
-local function minimizeUI()
-    if mainFrame.Size == originalSize then
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 700, 0, topBar.Size.Y.Offset)}):Play()
-        for _, child in ipairs(mainFrame:GetChildren()) do
-            if child ~= topBar then
-                child.Visible = false
-            end
-        end
-        minimizeButton.Visible = false
-        maximizeButton.Visible = true
+-- Minimize Function
+local function minimizeMenu()
+    if not isMinimized then
+        -- Tween to minimize the UI (reduce height or slide up)
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to just show the top bar
+        MinimizeButton.Visible = false
+        ExpandButton.Visible = true
+        isMinimized = true
     end
 end
 
--- Maximize function
-local function maximizeUI()
-    if mainFrame.Size ~= originalSize then
-        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = originalSize}):Play()
-        for _, child in ipairs(mainFrame:GetChildren()) do
-            child.Visible = true
-        end
-        minimizeButton.Visible = true
-        maximizeButton.Visible = false
+-- Expand Function
+local function expandMenu()
+    if isMinimized then
+        -- Tween to expand the UI back to its original size
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Adjust this as per original height
+        ExpandButton.Visible = false
+        MinimizeButton.Visible = true
+        isMinimized = false
     end
 end
 
--- Exit function
-local function exitUI()
-    mainFrame:Destroy()
+-- Exit Function
+local function exitMenu()
+    mainContainer:Destroy()
 end
 
--- Connect button events
-minimizeButton.MouseButton1Click:Connect(minimizeUI)
-maximizeButton.MouseButton1Click:Connect(maximizeUI)
-exitButton.MouseButton1Click:Connect(exitUI)
-
--- Make TopBar draggable (if not already)
-local function makeDraggable(frame)
-    local dragToggle = nil
-    local dragStart = nil
-    local startPos = nil
-
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragToggle = true
-            dragStart = input.Position
-            startPos = frame.Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragToggle = false
-                end
-            end)
-        end
-    end)
-
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-
-    UIS.InputChanged:Connect(function(input)
-        if dragToggle and input == dragInput then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-end
-
-makeDraggable(topBar)
-
+-- Button connections
+MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
+ExpandButton.MouseButton1Click:Connect(expandMenu)
+ExitButton.MouseButton1Click:Connect(exitMenu)
 
                     return element
                 end
