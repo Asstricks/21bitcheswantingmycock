@@ -2042,67 +2042,66 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
--- Assuming your main UI container is named "Main" and your top bar is "HeaderBar"
-local mainContainer = ImageLabel -- ImageLabel should be the main frame container (as per your existing code)
-local headerBar = mainContainer:FindFirstChild("HeaderBar") -- Assuming you have a "HeaderBar" or top section
+-- Ensure to find the HeaderBar or equivalent top bar in your UI
+local mainContainer = ImageLabel -- Assuming ImageLabel is your main frame
+local headerBar = mainContainer:FindFirstChild("HeaderBar") or mainContainer -- If HeaderBar doesn't exist, use mainContainer directly
 
--- Make sure mainContainer exists
+-- Ensure mainContainer exists
 if not mainContainer then
     error("MainContainer not found")
 end
 
--- Minimize/Expand button
-local isMinimized = false
+-- Create Minimize Button
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -60, 0, 0), -- Positioned 60px from the right
-    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    Position = UDim2.new(1, -60, 0, 0), -- Positioned 60px from the right of the headerBar
+    Size = UDim2.new(0, 30, 0, 30), -- Button size
     BackgroundColor3 = Color3.fromRGB(35, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
-    Parent = headerBar,
+    Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.SourceSans,
     TextSize = 20,
 })
 
--- Exit button
+-- Create Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
-    Position = UDim2.new(1, -30, 0, 0), -- Positioned 30px from the right
-    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    Position = UDim2.new(1, -30, 0, 0), -- Positioned 30px from the right of the headerBar
+    Size = UDim2.new(0, 30, 0, 30), -- Button size
     BackgroundColor3 = Color3.fromRGB(35, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
-    Parent = headerBar,
+    Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.SourceSans,
     TextSize = 20,
 })
 
--- Expand Button (Initially hidden, to toggle back when minimized)
+-- Create Expand Button (Initially hidden)
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -60, 0, 0), -- Same position as minimize
-    Size = UDim2.new(0, 30, 0, 30), -- Size of the button
+    Position = UDim2.new(1, -60, 0, 0), -- Same position as MinimizeButton
+    Size = UDim2.new(0, 30, 0, 30), -- Button size
     BackgroundColor3 = Color3.fromRGB(35, 35, 35),
     TextColor3 = Color3.fromRGB(255, 255, 255),
     BorderSizePixel = 0,
-    Parent = headerBar,
+    Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.SourceSans,
     TextSize = 20,
-    Visible = false, -- Hidden by default
+    Visible = false, -- Hidden initially
 })
 
 -- Minimize Function
+local isMinimized = false
 local function minimizeMenu()
     if not isMinimized then
-        -- Tween to minimize the UI (reduce height or slide up)
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to just show the top bar
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to minimize
         MinimizeButton.Visible = false
         ExpandButton.Visible = true
         isMinimized = true
@@ -2112,8 +2111,7 @@ end
 -- Expand Function
 local function expandMenu()
     if isMinimized then
-        -- Tween to expand the UI back to its original size
-        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Adjust this as per original height
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Tween to expand
         ExpandButton.Visible = false
         MinimizeButton.Visible = true
         isMinimized = false
@@ -2122,7 +2120,7 @@ end
 
 -- Exit Function
 local function exitMenu()
-    mainContainer:Destroy()
+    mainContainer:Destroy() -- Destroys the entire UI
 end
 
 -- Button connections
