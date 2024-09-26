@@ -2095,14 +2095,15 @@ makeRounded(MinimizeButton, 5) -- Make the button round
 -- Create Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
-    Text = "x",
+    Text = "x",  -- Small "x" for the exit button
     Position = UDim2.new(1, -30, 0, 5), -- Positioned next to MinimizeButton
     Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
-    TextSize = 16,
+    TextSize = 14, -- Adjusted to make the "x" smaller and fit the button size
+    TextYAlignment = Enum.TextYAlignment.Center, -- Center the text vertically
     ClipsDescendants = true,
 })
 
