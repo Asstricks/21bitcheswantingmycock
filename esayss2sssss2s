@@ -2068,59 +2068,65 @@ local function makeRounded(button, radius)
     uiCorner.Parent = button
 end
 
+-- Adjusted button style function to match the UI theme
+local function applyButtonTheme(button, bgColor, textColor)
+    button.BackgroundColor3 = bgColor
+    button.TextColor3 = textColor
+end
+
 -- Create Minimize Button
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
     Text = "-",
-    Position = UDim2.new(1, -60, 0, 5), -- Positioned 60px from the right of the headerBar
-    Size = UDim2.new(0, 30, 0, 30), -- Button size
-    BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Position = UDim2.new(1, -90, 0, 5), -- Positioned 90px from the right of the headerBar
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
-    TextSize = 18,
+    TextSize = 16,
     ClipsDescendants = true,
 })
 
+-- Apply the correct theme for MinimizeButton
+applyButtonTheme(MinimizeButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
 makeRounded(MinimizeButton, 5) -- Make the button round
 
 -- Create Exit Button
 local ExitButton = library:create("TextButton", {
     Name = "ExitButton",
     Text = "X",
-    Position = UDim2.new(1, -30, 0, 5), -- Positioned 30px from the right of the headerBar
-    Size = UDim2.new(0, 30, 0, 30), -- Button size
-    BackgroundColor3 = Color3.fromRGB(255, 70, 70), -- Match theme for the exit button
-    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Position = UDim2.new(1, -60, 0, 5), -- Positioned 60px from the right of the headerBar
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
-    TextSize = 18,
+    TextSize = 16,
     ClipsDescendants = true,
 })
 
+-- Apply the correct theme for ExitButton
+applyButtonTheme(ExitButton, Color3.fromRGB(65, 15, 15), Color3.fromRGB(255, 255, 255)) -- Darker red for exit
 makeRounded(ExitButton, 5) -- Make the button round
 
 -- Create Expand Button (Initially hidden)
 local ExpandButton = library:create("TextButton", {
     Name = "ExpandButton",
     Text = "+",
-    Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
-    Size = UDim2.new(0, 30, 0, 30), -- Button size
-    BackgroundColor3 = Color3.fromRGB(45, 45, 45),
-    TextColor3 = Color3.fromRGB(255, 255, 255),
+    Position = UDim2.new(1, -90, 0, 5), -- Same position as MinimizeButton
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
     BorderSizePixel = 0,
     Parent = headerBar, -- Parent it to headerBar
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
-    TextSize = 18,
+    TextSize = 16,
     ClipsDescendants = true,
     Visible = false, -- Hidden initially
 })
 
+-- Apply the correct theme for ExpandButton
+applyButtonTheme(ExpandButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
 makeRounded(ExpandButton, 5) -- Make the button round
 
 -- Minimize Function
