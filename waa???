@@ -1861,161 +1861,308 @@ function library.new(library_title, cfg_location)
                             end
                         end
                         element:set_value(value, true)
-                    elseif type == "Slider" then
-                        Border.Size = Border.Size + UDim2.new(0, 0, 0, 35)
+elseif type == "Slider" then
+    Border.Size = Border.Size + UDim2.new(0, 0, 0, 35)
 
-                        value = {Slider = default and default.default or 0}
+    value = {Slider = default and default.default or 0}
 
-                        local min, max = default and default.min or 0, default and default.max or 100
+    local min, max = default and default.min or 0, default and default.max or 100
 
-                        local Slider = library:create("Frame", {
-                            Name = "Slider",
-                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                            BackgroundTransparency = 1,
-                            Size = UDim2.new(1, 0, 0, 35),
-                        }, Container)
+    local Slider = library:create("Frame", {
+        Name = "Slider",
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1, 0, 0, 35),
+    }, Container)
 
-                        function element:set_visible(bool)
-                            if bool then
-                                if Slider.Visible then return end
-                                Border.Size = Border.Size + UDim2.new(0, 0, 0, 35)
-                                Slider.Visible = true
-                            else
-                                if not Slider.Visible then return end
-                                Border.Size = Border.Size + UDim2.new(0, 0, 0, -35)
-                                Slider.Visible = false
-                            end
-                        end
+    function element:set_visible(bool)
+        if bool then
+            if Slider.Visible then return end
+            Border.Size = Border.Size + UDim2.new(0, 0, 0, 35)
+            Slider.Visible = true
+        else
+            if not Slider.Visible then return end
+            Border.Size = Border.Size + UDim2.new(0, 0, 0, -35)
+            Slider.Visible = false
+        end
+    end
 
-                        local SliderText = library:create("TextLabel", {
-                            Name = "SliderText",
-                            BackgroundTransparency = 1,
-                            Position = UDim2.new(0, 9, 0, 6),
-                            Size = UDim2.new(0, 200, 0, 9),
-                            Font = Enum.Font.Ubuntu,
-                            Text = text,
-                            TextColor3 = Color3.fromRGB(150, 150, 150),
-                            TextSize = 14,
-                            TextXAlignment = Enum.TextXAlignment.Left,
-                        }, Slider)
+    local SliderText = library:create("TextLabel", {
+        Name = "SliderText",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 9, 0, 6),
+        Size = UDim2.new(0, 200, 0, 9),
+        Font = Enum.Font.Ubuntu,
+        Text = text,
+        TextColor3 = Color3.fromRGB(150, 150, 150),
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Left,
+    }, Slider)
 
-                        local SliderButton = library:create("TextButton", {
-                            Name = "SliderButton",
-                            BackgroundColor3 = Color3.fromRGB(25, 25, 25),
-                            BorderColor3 = Color3.fromRGB(0, 0, 0),
-                            Position = UDim2.new(0, 9, 0, 20),
-                            Size = UDim2.new(0, 260, 0, 10),
-                            AutoButtonColor = false,
-                            Font = Enum.Font.SourceSans,
-                            Text = "",
-                        }, Slider)
+    local SliderButton = library:create("TextButton", {
+        Name = "SliderButton",
+        BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+        BorderColor3 = Color3.fromRGB(0, 0, 0),
+        Position = UDim2.new(0, 9, 0, 20),
+        Size = UDim2.new(0, 260, 0, 10),
+        AutoButtonColor = false,
+        Font = Enum.Font.SourceSans,
+        Text = "",
+    }, Slider)
 
-                        local SliderFrame = library:create("Frame", {
-                            Name = "SliderFrame",
-                            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                            BorderSizePixel = 0,
-                            Size = UDim2.new(0, 100, 1, 0),
-                        }, SliderButton)
+    local SliderFrame = library:create("Frame", {
+        Name = "SliderFrame",
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        BorderSizePixel = 0,
+        Size = UDim2.new(0, 100, 1, 0),
+    }, SliderButton)
 
-                        local UIGradient = library:create("UIGradient", {
-                            Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(79, 95, 239)), ColorSequenceKeypoint.new(1, Color3.fromRGB(56, 67, 163))},
-                            Rotation = 90,
-                        }, SliderFrame)
+    local UIGradient = library:create("UIGradient", {
+        Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(79, 95, 239)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(56, 67, 163))
+        },
+        Rotation = 90,
+    }, SliderFrame)
 
-                        local SliderValue = library:create("TextLabel", {
-                            Name = "SliderValue",
-                            BackgroundTransparency = 1,
-                            Position = UDim2.new(0, 69, 0, 6),
-                            Size = UDim2.new(0, 200, 0, 9),
-                            Font = Enum.Font.Ubuntu,
-                            Text = value.Slider,
-                            TextColor3 = Color3.fromRGB(150, 150, 150),
-                            TextSize = 14,
-                            TextXAlignment = Enum.TextXAlignment.Right,
-                        }, Slider)
+    local SliderValue = library:create("TextLabel", {
+        Name = "SliderValue",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 69, 0, 6),
+        Size = UDim2.new(0, 200, 0, 9),
+        Font = Enum.Font.Ubuntu,
+        Text = value.Slider,
+        TextColor3 = Color3.fromRGB(150, 150, 150),
+        TextSize = 14,
+        TextXAlignment = Enum.TextXAlignment.Right,
+    }, Slider)
 
-                        local is_sliding = false
-                        local mouse_in = false
-                        Slider.MouseEnter:Connect(function()
-                            library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(255, 255, 255)})
-                            library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(255, 255, 255)})
+    local is_sliding = false
+    local mouse_in = false
 
-                            mouse_in = true
-                        end)
-                        Slider.MouseLeave:Connect(function()
-                            if not is_sliding then
-                                library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
-                                library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
-                            end
+    Slider.MouseEnter:Connect(function()
+        library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(255, 255, 255)})
+        library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(255, 255, 255)})
 
-                            mouse_in = false
-                        end)
-                        SliderButton.MouseButton1Down:Connect(function()
-                            SliderFrame.Size = UDim2.new(0, math.clamp(mouse.X - SliderFrame.AbsolutePosition.X, 0, 260), 1, 0)
-                        
-                            local val = math.floor((((max - min) / 260) * SliderFrame.AbsoluteSize.X) + min)
-                            if val ~= value.Slider then
-                                SliderValue.Text = val
-                                value.Slider = val
-                                do_callback()
-                            end
+        mouse_in = true
+    end)
 
-                            is_sliding = true
+    Slider.MouseLeave:Connect(function()
+        if not is_sliding then
+            library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
+            library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
+        end
 
-                            move_connection = mouse.Move:Connect(function()
-                                SliderFrame.Size = UDim2.new(0, math.clamp(mouse.X - SliderFrame.AbsolutePosition.X, 0, 260), 1, 0)
-                        
-                                local val = math.floor((((max - min) / 260) * SliderFrame.AbsoluteSize.X) + min)
-                                if val ~= value.Slider then
-                                    SliderValue.Text = val
-                                    value.Slider = val
-                                    do_callback()
-                                end
-                            end)
-                            release_connection = uis.InputEnded:Connect(function(Mouse)
-                                if Mouse.UserInputType == Enum.UserInputType.MouseButton1 then
-                                    SliderFrame.Size = UDim2.new(0, math.clamp(mouse.X - SliderFrame.AbsolutePosition.X, 0, 260), 1, 0)
-                        
-                                    local val = math.floor((((max - min) / 260) * SliderFrame.AbsoluteSize.X) + min)
-                                    if val ~= value.Slider then
-                                        SliderValue.Text = val
-                                        value.Slider = val
-                                        do_callback()
-                                    end
+        mouse_in = false
+    end)
 
-                                    is_sliding = false
+    -- **Replaced SliderButton.MouseButton1Down:Connect Function Starts Here**
+    SliderButton.MouseButton1Down:Connect(function()
+        is_sliding = true
 
-                                    if not mouse_in then
-                                        library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
-                                        library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextColor3 = Color3.fromRGB(150, 150, 150)})
-                                    end
+        -- Function to update the slider based on mouse position
+        local function updateSlider()
+            -- Calculate the relative X position of the mouse to the slider
+            local relativeX = mouse.X - SliderButton.AbsolutePosition.X
+            relativeX = math.clamp(relativeX, 0, 260) -- Ensure it stays within bounds
 
-                                    move_connection:Disconnect()
-                                    release_connection:Disconnect()
-                                end
-                            end)
-                        end)
+            -- Update the slider frame size based on mouse position
+            SliderFrame.Size = UDim2.new(0, relativeX, 1, 0)
 
-                        function element:set_value(new_value, cb)
-                            value = new_value and new_value or value
-                            menu.values[tab.tab_num][section_name][sector_name][flag] = value
+            -- Calculate the new slider value
+            local val = math.floor((((max - min) / 260) * relativeX) + min)
+            if val ~= value.Slider then
+                SliderValue.Text = val
+                value.Slider = val
+                do_callback()
+            end
+        end
 
-                            local new_size = (value.Slider - min) / (max-min)
-                            SliderFrame.Size = UDim2.new(new_size, 0, 1, 0)
-                            SliderValue.Text = value.Slider
+        -- Initial update when dragging starts
+        updateSlider()
 
-                            if cb == nil or not cb then
-                                do_callback()
-                            end
-                        end
-                        element:set_value(value, true)
-                    end
+        -- Connect the mouse move event to update the slider
+        local move_connection = mouse.Move:Connect(updateSlider)
 
-                    menu.on_load_cfg:Connect(function()
-                        if type ~= "Button" and type ~= "Scroll" then
-                            element:set_value(menu.values[tab.tab_num][section_name][sector_name][flag])
-                        end
-                    end)
+        -- Rainbow color variables
+        local hue = 0
+        local rainbow_connection
+        local function updateRainbow()
+            hue = (hue + 0.001) % 1 -- Increment hue smoothly
+            SliderFrame.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+        end
+
+        -- Start updating the rainbow color
+        rainbow_connection = rs.RenderStepped:Connect(updateRainbow)
+
+        -- Connect the input ended event to stop dragging and rainbow update
+        local release_connection
+        release_connection = uis.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                is_sliding = false
+
+                -- Reset text colors
+                library:tween(SliderText, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    TextColor3 = Color3.fromRGB(150, 150, 150)
+                })
+                library:tween(SliderValue, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    TextColor3 = Color3.fromRGB(150, 150, 150)
+                })
+
+                -- Disconnect the event listeners to stop updating
+                if move_connection then
+                    move_connection:Disconnect()
+                end
+                if release_connection then
+                    release_connection:Disconnect()
+                end
+
+                -- Disconnect the rainbow update
+                if rainbow_connection then
+                    rainbow_connection:Disconnect()
+                    -- Optionally, reset the slider color to a default color
+                    SliderFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                end
+            end
+        end)
+    end)
+    -- **Replaced SliderButton.MouseButton1Down:Connect Function Ends Here**
+
+    function element:set_value(new_value, cb)
+        value = new_value and new_value or value
+        menu.values[tab.tab_num][section_name][sector_name][flag] = value
+
+        local new_size = (value.Slider - min) / (max - min)
+        SliderFrame.Size = UDim2.new(new_size, 0, 1, 0)
+        SliderValue.Text = value.Slider
+
+        if cb == nil or not cb then
+            do_callback()
+        end
+    end
+    element:set_value(value, true)
+end
+-- Ensure to find the HeaderBar or equivalent top bar in your UI
+local mainContainer = ImageLabel -- Assuming ImageLabel is your main frame
+local headerBar = mainContainer:FindFirstChild("HeaderBar") or mainContainer -- If HeaderBar doesn't exist, use mainContainer directly
+
+-- Ensure mainContainer exists
+if not mainContainer then
+    error("MainContainer not found")
+end
+
+-- Function to hide or show specific elements of the UI
+local function toggleUIElements(state)
+    -- Iterate through all children of the main container and hide/show UI elements except the top bar, exit, and minimize buttons
+    for _, child in ipairs(mainContainer:GetChildren()) do
+        if child.Name ~= "HeaderBar" and child.Name ~= "MinimizeButton" and child.Name ~= "ExitButton" and child.Name ~= "ExpandButton" and child.Name ~= "Title" then
+            child.Visible = state
+        end
+    end
+end
+
+-- Helper function to make buttons rounded
+local function makeRounded(button, radius)
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, radius) -- Set corner radius
+    uiCorner.Parent = button
+end
+
+-- Adjusted button style function to match the UI theme
+local function applyButtonTheme(button, bgColor, textColor)
+    button.BackgroundColor3 = bgColor
+    button.TextColor3 = textColor
+end
+
+-- Create Minimize Button
+local MinimizeButton = library:create("TextButton", {
+    Name = "MinimizeButton",
+    Text = "-",
+    Position = UDim2.new(1, -60, 0, 5), -- Positioned more to the right
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
+    BorderSizePixel = 0,
+    Parent = headerBar, -- Parent it to headerBar
+    AutoButtonColor = false,
+    Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
+    TextSize = 16,
+    ClipsDescendants = true,
+})
+
+-- Apply the correct theme for MinimizeButton
+applyButtonTheme(MinimizeButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
+makeRounded(MinimizeButton, 5) -- Make the button round
+
+-- Create Exit Button
+local ExitButton = library:create("TextButton", {
+    Name = "ExitButton",
+    Text = "x",  -- Small "x" for the exit button
+    Position = UDim2.new(1, -30, 0, 5), -- Positioned next to MinimizeButton
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
+    BorderSizePixel = 0,
+    Parent = headerBar, -- Parent it to headerBar
+    AutoButtonColor = false,
+    Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
+    TextSize = 14, -- Adjusted to make the "x" smaller and fit the button size
+    TextYAlignment = Enum.TextYAlignment.Center, -- Center the text vertically
+    ClipsDescendants = true,
+})
+
+-- Apply the correct theme for ExitButton (same as MinimizeButton now)
+applyButtonTheme(ExitButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
+makeRounded(ExitButton, 5) -- Make the button round
+
+-- Create Expand Button (Initially hidden)
+local ExpandButton = library:create("TextButton", {
+    Name = "ExpandButton",
+    Text = "+",
+    Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
+    Size = UDim2.new(0, 25, 0, 25), -- Smaller button size
+    BorderSizePixel = 0,
+    Parent = headerBar, -- Parent it to headerBar
+    AutoButtonColor = false,
+    Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
+    TextSize = 16,
+    ClipsDescendants = true,
+    Visible = false, -- Hidden initially
+})
+
+-- Apply the correct theme for ExpandButton
+applyButtonTheme(ExpandButton, Color3.fromRGB(45, 45, 45), Color3.fromRGB(220, 220, 220)) 
+makeRounded(ExpandButton, 5) -- Make the button round
+
+-- Minimize Function
+local isMinimized = false
+local function minimizeMenu()
+    if not isMinimized then
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 30)}) -- Tween to minimize
+        toggleUIElements(false) -- Hide other UI elements
+        MinimizeButton.Visible = false
+        ExpandButton.Visible = true
+        isMinimized = true
+    end
+end
+
+-- Expand Function
+local function expandMenu()
+    if isMinimized then
+        library:tween(mainContainer, TweenInfo.new(0.5), {Size = UDim2.new(mainContainer.Size.X.Scale, mainContainer.Size.X.Offset, 0, 500)}) -- Tween to expand
+        toggleUIElements(true) -- Show other UI elements
+        ExpandButton.Visible = false
+        MinimizeButton.Visible = true
+        isMinimized = false
+    end
+end
+
+-- Exit Function
+local function exitMenu()
+    mainContainer:Destroy() -- Destroys the entire UI
+end
+
+-- Button connections
+MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
+ExpandButton.MouseButton1Click:Connect(expandMenu)
+ExitButton.MouseButton1Click:Connect(exitMenu)
+
 
                     return element
                 end
