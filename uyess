@@ -2042,17 +2042,22 @@ elseif type == "Slider" then
     end
     element:set_value(value, true)
 end
--- Your full UI code
--- At the end of your existing script
-
 local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
 
--- Assuming 'MainFrame' and 'TopBar' are already part of your initialized UI
+-- Get reference to MainFrame and TopBar
+-- Replace 'MainFrame' and 'TopBar' with the exact names in your UI
 local mainFrame = script.Parent:FindFirstChild("MainFrame") or script.Parent -- Adjust according to your structure
-local topBar = mainFrame:FindFirstChild("TopBar") -- Assuming TopBar exists inside MainFrame
+local topBar = mainFrame:FindFirstChild("TopBar") -- Make sure this is correct
+
+-- Handle missing references
+if not mainFrame then
+    warn("MainFrame not found! Make sure it's correctly named and initialized.")
+    return
+end
 
 if not topBar then
-    warn("TopBar not found! Make sure it's correctly named.")
+    warn("TopBar not found! Make sure it's correctly named and initialized.")
     return
 end
 
@@ -2141,7 +2146,7 @@ local function makeDraggable(frame)
         end
     end)
 
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
+    UIS.InputChanged:Connect(function(input)
         if dragToggle and input == dragInput then
             local delta = input.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
