@@ -244,6 +244,114 @@ function library.new(library_title, cfg_location)
 
         local TabSections = Instance.new("Frame")
         local TabFrames = Instance.new("Frame")
+-- Assuming 'TopBar' and 'MainFrame' already exist in your UI structure.
+
+local TweenService = game:GetService("TweenService")
+
+-- Reference to your UI components
+local mainFrame = script.Parent -- Assuming the script is inside MainFrame
+local topBar = mainFrame:FindFirstChild("TopBar")
+
+if not topBar then
+    warn("TopBar not found! Make sure it's correctly named.")
+    return
+end
+
+-- Create buttons for Minimize, Maximize, and Exit
+local function createButton(name, text, position)
+    local button = Instance.new("TextButton")
+    button.Name = name
+    button.Parent = topBar
+    button.BackgroundTransparency = 1
+    button.Position = position
+    button.Size = UDim2.new(0, 20, 0, 20)
+    button.Font = Enum.Font.SourceSans
+    button.Text = text
+    button.TextColor3 = Color3.fromRGB(150, 150, 150)
+    button.TextSize = 18
+    return button
+end
+
+local minimizeButton = createButton("MinimizeButton", "-", UDim2.new(1, -60, 0, 5))
+local maximizeButton = createButton("MaximizeButton", "+", UDim2.new(1, -60, 0, 5))
+maximizeButton.Visible = false -- Initially hidden
+local exitButton = createButton("ExitButton", "X", UDim2.new(1, -30, 0, 5))
+
+-- Store the original size of MainFrame
+local originalSize = mainFrame.Size
+
+-- Minimize function
+local function minimizeUI()
+    if mainFrame.Size == UDim2.new(0, 700, 0, 500) then -- Assuming 700x500 is your original size
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 700, 0, topBar.Size.Y.Offset)}):Play()
+        for _, child in ipairs(mainFrame:GetChildren()) do
+            if child ~= topBar then
+                child.Visible = false
+            end
+        end
+        minimizeButton.Visible = false
+        maximizeButton.Visible = true
+    end
+end
+
+-- Maximize function
+local function maximizeUI()
+    if mainFrame.Size ~= originalSize then
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = originalSize}):Play()
+        for _, child in ipairs(mainFrame:GetChildren()) do
+            child.Visible = true
+        end
+        minimizeButton.Visible = true
+        maximizeButton.Visible = false
+    end
+end
+
+-- Exit function
+local function exitUI()
+    mainFrame:Destroy()
+end
+
+-- Connect button events
+minimizeButton.MouseButton1Click:Connect(minimizeUI)
+maximizeButton.MouseButton1Click:Connect(maximizeUI)
+exitButton.MouseButton1Click:Connect(exitUI)
+
+-- Make TopBar draggable (if not already)
+local function makeDraggable(frame)
+    local dragToggle = nil
+    local dragStart = nil
+    local startPos = nil
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragToggle = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragToggle = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragToggle and input == dragInput then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+makeDraggable(topBar)
+
 
         local Tab = library:create("Frame", {
             Name = "Tab",
