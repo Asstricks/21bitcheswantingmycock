@@ -1930,7 +1930,7 @@ SliderButton.MouseButton1Down:Connect(function()
         end
     end)
 end)
-
+end)
                     return element
                 end
 
