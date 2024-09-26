@@ -2061,6 +2061,13 @@ local function toggleUIElements(state)
     end
 end
 
+-- Helper function to make buttons rounded
+local function makeRounded(button, radius)
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, radius) -- Set corner radius
+    uiCorner.Parent = button
+end
+
 -- Create Minimize Button
 local MinimizeButton = library:create("TextButton", {
     Name = "MinimizeButton",
@@ -2074,9 +2081,10 @@ local MinimizeButton = library:create("TextButton", {
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
     TextSize = 18,
-    CornerRadius = UDim.new(0, 5), -- Make the button round
     ClipsDescendants = true,
 })
+
+makeRounded(MinimizeButton, 5) -- Make the button round
 
 -- Create Exit Button
 local ExitButton = library:create("TextButton", {
@@ -2091,9 +2099,10 @@ local ExitButton = library:create("TextButton", {
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
     TextSize = 18,
-    CornerRadius = UDim.new(0, 5), -- Make the button round
     ClipsDescendants = true,
 })
+
+makeRounded(ExitButton, 5) -- Make the button round
 
 -- Create Expand Button (Initially hidden)
 local ExpandButton = library:create("TextButton", {
@@ -2108,10 +2117,11 @@ local ExpandButton = library:create("TextButton", {
     AutoButtonColor = false,
     Font = Enum.Font.Ubuntu, -- Match the font theme of your UI
     TextSize = 18,
-    CornerRadius = UDim.new(0, 5), -- Make the button round
     ClipsDescendants = true,
     Visible = false, -- Hidden initially
 })
+
+makeRounded(ExpandButton, 5) -- Make the button round
 
 -- Minimize Function
 local isMinimized = false
@@ -2145,6 +2155,7 @@ end
 MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
 ExpandButton.MouseButton1Click:Connect(expandMenu)
 ExitButton.MouseButton1Click:Connect(exitMenu)
+
 
 
                     return element
