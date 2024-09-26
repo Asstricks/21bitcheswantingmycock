@@ -1863,6 +1863,13 @@ function library.new(library_title, cfg_location)
                         element:set_value(value, true)
 -- ======= Button Functionalities =======
 -- ======= Top Bar Creation =======
+local MenuFrame = library:create("Frame", {
+    Name = "MenuFrame",
+    BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+    BorderSizePixel = 0,
+    Size = UDim2.new(0, 300, 0, 400),
+    Position = UDim2.new(0.5, -150, 0.5, -200),
+}, unknown -- Replace 'someParentFrame' with your actual parent, e.g., PlayerGui's ScreenGui
 
 -- Create Top Bar
 local TopBar = library:create("Frame", {
