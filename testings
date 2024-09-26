@@ -1956,7 +1956,140 @@ elseif type == "Slider" then
         mouse_in = false
     end)
 
-    -- **Replaced SliderButton.MouseButton1Down:Connect Function Starts Here**
+    -- **Top Bar and Buttons Integration Starts Here**
+
+    -- Create Top Bar
+    local TopBar = library:create("Frame", {
+        Name = "TopBar",
+        BackgroundColor3 = Color3.fromRGB(30, 30, 30),
+        BorderSizePixel = 0,
+        Size = UDim2.new(1, 0, 0, 30), -- Full width, height of 30 pixels
+        Position = UDim2.new(0, 0, 0, 0), -- Top of the MenuFrame
+    }, MenuFrame)
+
+    -- Optional: Add Title to Top Bar
+    local Title = library:create("TextLabel", {
+        Name = "Title",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(0, 10, 0, 5),
+        Size = UDim2.new(0, 200, 1, 0),
+        Font = Enum.Font.Ubuntu,
+        Text = "Your Menu Title",
+        TextColor3 = Color3.fromRGB(255, 255, 255),
+        TextSize = 16,
+        TextXAlignment = Enum.TextXAlignment.Left,
+    }, TopBar)
+
+    -- Create Minimize Button
+    local MinimizeButton = library:create("TextButton", {
+        Name = "MinimizeButton",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -60, 0, 5), -- Adjusted for Top Bar
+        Size = UDim2.new(0, 20, 0, 20),
+        Font = Enum.Font.SourceSans,
+        Text = "-",
+        TextColor3 = Color3.fromRGB(150, 150, 150),
+        TextSize = 18,
+        TextStrokeTransparency = 1,
+    }, TopBar)
+
+    -- Create Extend Button (Initially Invisible)
+    local ExtendButton = library:create("TextButton", {
+        Name = "ExtendButton",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -60, 0, 5), -- Same position as MinimizeButton
+        Size = UDim2.new(0, 20, 0, 20),
+        Font = Enum.Font.SourceSans,
+        Text = "+",
+        TextColor3 = Color3.fromRGB(150, 150, 150),
+        TextSize = 18,
+        TextStrokeTransparency = 1,
+        Visible = false, -- Hidden initially
+    }, TopBar)
+
+    -- Create Exit Button
+    local ExitButton = library:create("TextButton", {
+        Name = "ExitButton",
+        BackgroundTransparency = 1,
+        Position = UDim2.new(1, -30, 0, 5), -- Positioned next to MinimizeButton
+        Size = UDim2.new(0, 20, 0, 20),
+        Font = Enum.Font.SourceSans,
+        Text = "X",
+        TextColor3 = Color3.fromRGB(150, 150, 150),
+        TextSize = 18,
+        TextStrokeTransparency = 1,
+    }, TopBar)
+
+    -- Store the original menu height
+    local originalMenuHeight = MenuFrame.Size.Y.Offset
+
+    -- Variable to track the minimized state
+    local isMinimized = false
+
+    -- Function to Minimize the Menu
+    local function minimizeMenu()
+        if isMinimized then return end
+        isMinimized = true
+
+        -- Tween the MenuFrame to reduce its height (only TopBar remains)
+        library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(MenuFrame.Size.X.Scale, MenuFrame.Size.X.Offset, 0, TopBar.Size.Y.Offset)
+        })
+
+        -- Hide all children of MenuFrame except TopBar
+        for _, child in ipairs(MenuFrame:GetChildren()) do
+            if child ~= TopBar then
+                child.Visible = false
+            end
+        end
+
+        -- Toggle button visibility
+        MinimizeButton.Visible = false
+        ExtendButton.Visible = true
+    end
+
+    -- Function to Extend the Menu
+    local function extendMenu()
+        if not isMinimized then return end
+        isMinimized = false
+
+        -- Tween the MenuFrame to its original size
+        library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(MenuFrame.Size.X.Scale, MenuFrame.Size.X.Offset, 0, originalMenuHeight)
+        })
+
+        -- Show all children of MenuFrame except TopBar
+        for _, child in ipairs(MenuFrame:GetChildren()) do
+            if child ~= TopBar then
+                child.Visible = true
+            end
+        end
+
+        -- Toggle button visibility
+        MinimizeButton.Visible = true
+        ExtendButton.Visible = false
+    end
+
+    -- Function to Exit the Menu
+    local function exitMenu()
+        -- Tween the MenuFrame to fade out
+        library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            BackgroundTransparency = 1,
+            Visible = false
+        })
+
+        -- Optionally, destroy the MenuFrame after tweening
+        wait(0.3)
+        MenuFrame:Destroy()
+    end
+
+    -- Connect Buttons to Their Functions
+    MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
+    ExtendButton.MouseButton1Click:Connect(extendMenu)
+    ExitButton.MouseButton1Click:Connect(exitMenu)
+
+    -- **Slider Functionality Integration Starts Here**
+
     SliderButton.MouseButton1Down:Connect(function()
         is_sliding = true
 
@@ -2026,7 +2159,6 @@ elseif type == "Slider" then
             end
         end)
     end)
-    -- **Replaced SliderButton.MouseButton1Down:Connect Function Ends Here**
 
     function element:set_value(new_value, cb)
         value = new_value and new_value or value
@@ -2043,7 +2175,14 @@ elseif type == "Slider" then
     element:set_value(value, true)
 end
 
-                    return element
+menu.on_load_cfg:Connect(function()
+    if type ~= "Button" and type ~= "Scroll" then
+        element:set_value(menu.values[tab.tab_num][section_name][sector_name][flag])
+    end
+end)
+
+return element
+ 
                 end
 
                 return sector
