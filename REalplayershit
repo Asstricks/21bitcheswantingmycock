@@ -1861,6 +1861,76 @@ function library.new(library_title, cfg_location)
                             end
                         end
                         element:set_value(value, true)
+-- ======= Button Functionalities =======
+
+-- Store the original menu height
+local originalMenuHeight = MenuFrame.Size.Y.Offset
+
+-- Variable to track the minimized state
+local isMinimized = false
+
+-- Function to Minimize the Menu
+local function minimizeMenu()
+    if isMinimized then return end
+    isMinimized = true
+
+    -- Tween the MenuFrame to reduce its height (only TopBar remains)
+    library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(MenuFrame.Size.X.Scale, MenuFrame.Size.X.Offset, 0, TopBar.Size.Y.Offset)
+    })
+
+    -- Hide all children of MenuFrame except TopBar
+    for _, child in ipairs(MenuFrame:GetChildren()) do
+        if child ~= TopBar then
+            child.Visible = false
+        end
+    end
+
+    -- Toggle button visibility
+    MinimizeButton.Visible = false
+    ExtendButton.Visible = true
+end
+
+-- Function to Extend the Menu
+local function extendMenu()
+    if not isMinimized then return end
+    isMinimized = false
+
+    -- Tween the MenuFrame to its original size
+    library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = UDim2.new(MenuFrame.Size.X.Scale, MenuFrame.Size.X.Offset, 0, originalMenuHeight)
+    })
+
+    -- Show all children of MenuFrame except TopBar
+    for _, child in ipairs(MenuFrame:GetChildren()) do
+        if child ~= TopBar then
+            child.Visible = true
+        end
+    end
+
+    -- Toggle button visibility
+    MinimizeButton.Visible = true
+    ExtendButton.Visible = false
+end
+
+-- Function to Exit the Menu
+local function exitMenu()
+    -- Tween the MenuFrame to fade out
+    library:tween(MenuFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 1,
+        Visible = false
+    })
+
+    -- Optionally, destroy the MenuFrame after tweening
+    wait(0.3)
+    MenuFrame:Destroy()
+end
+
+-- Connect Buttons to Their Functions
+MinimizeButton.MouseButton1Click:Connect(minimizeMenu)
+ExtendButton.MouseButton1Click:Connect(extendMenu)
+ExitButton.MouseButton1Click:Connect(exitMenu)
+
 elseif type == "Slider" then
     Border.Size = Border.Size + UDim2.new(0, 0, 0, 35)
 
@@ -1956,8 +2026,7 @@ elseif type == "Slider" then
         mouse_in = false
     end)
 
-    -- **Slider Functionality Integration Starts Here**
-
+    -- **Replaced SliderButton.MouseButton1Down:Connect Function Starts Here**
     SliderButton.MouseButton1Down:Connect(function()
         is_sliding = true
 
@@ -2027,6 +2096,7 @@ elseif type == "Slider" then
             end
         end)
     end)
+    -- **Replaced SliderButton.MouseButton1Down:Connect Function Ends Here**
 
     function element:set_value(new_value, cb)
         value = new_value and new_value or value
@@ -2043,15 +2113,7 @@ elseif type == "Slider" then
     element:set_value(value, true)
 end
 
-menu.on_load_cfg:Connect(function()
-    if type ~= "Button" and type ~= "Scroll" then
-        element:set_value(menu.values[tab.tab_num][section_name][sector_name][flag])
-    end
-end)
-
-return element
-
- 
+                    return element
                 end
 
                 return sector
